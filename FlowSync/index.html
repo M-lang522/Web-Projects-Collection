@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>FlowSync · effortless team flow</title>
+  <!-- Font Awesome 6 for crisp icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+
+    /* global container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* header & navigation */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logo i {
+      background: none;
+      -webkit-text-fill-color: #2563eb;
+      font-size: 2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-weight: 500;
+      color: #334155;
+      transition: color 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover {
+      color: #2563eb;
+    }
+
+    .btn {
+      padding: 10px 22px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      background: white;
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      border: 1px solid #2563eb;
+      color: white;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      border: 1px solid #cbd5e1;
+      color: #1e293b;
+    }
+
+    .btn-outline:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+      background: #f1f5f9;
+    }
+
+    /* page sections (simulated routing with radio) */
+    .page {
+      display: none;
+    }
+
+    /* control which page shows */
+    #home-radio:checked ~ .pages #home-page,
+    #pricing-radio:checked ~ .pages #pricing-page,
+    #login-radio:checked ~ .pages #login-page,
+    #dashboard-radio:checked ~ .pages #dashboard-page {
+      display: block;
+    }
+
+    /* hidden radios */
+    .nav-radio {
+      display: none;
+    }
+
+    /* make nav links clickable via labels */
+    .nav-label {
+      cursor: pointer;
+    }
+
+    /* home page hero */
+    .hero {
+      padding: 60px 0 70px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3.8rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.2;
+      max-width: 800px;
+      margin: 0 auto 20px;
+      background: linear-gradient(to right, #0f172a, #1e293b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: #475569;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+
+    .feature-grid {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 50px 0 30px;
+    }
+
+    .feature-card {
+      background: white;
+      padding: 28px 24px;
+      border-radius: 28px;
+      width: 220px;
+      box-shadow: 0 20px 35px -8px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+    }
+
+    .feature-card i {
+      font-size: 2.3rem;
+      color: #2563eb;
+      margin-bottom: 16px;
+      background: #eff6ff;
+      padding: 14px;
+      border-radius: 18px;
+    }
+
+    .feature-card h3 {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .cta-button {
+      margin-top: 30px;
+    }
+
+    /* pricing page */
+    .pricing-header {
+      text-align: center;
+      padding: 50px 0 40px;
+    }
+
+    .pricing-header h2 {
+      font-size: 2.8rem;
+      font-weight: 700;
+    }
+
+    .pricing-cards {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 32px 24px;
+      width: 280px;
+      box-shadow: 0 18px 30px -12px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 25px 40px -12px rgba(37,99,235,0.15);
+      border-color: #dbeafe;
+    }
+
+    .card h3 {
+      font-size: 1.8rem;
+    }
+
+    .price {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 16px 0 6px;
+      color: #0f172a;
+    }
+
+    .card ul {
+      list-style: none;
+      margin: 24px 0;
+      flex: 1;
+    }
+
+    .card li {
+      margin: 12px 0;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card li i {
+      color: #2563eb;
+    }
+
+    /* login / signup form */
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 70vh;
+    }
+
+    .form-card {
+      background: white;
+      padding: 40px;
+      border-radius: 28px;
+      width: 400px;
+      box-shadow: 0 25px 40px -15px rgba(0,0,0,0.1);
+    }
+
+    .form-card h2 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .input-group {
+      margin: 20px 0;
+    }
+
+    .input-group label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      font-size: 1rem;
+      transition: 0.2s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+    }
+
+    .full-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 30px;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+      border: none;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    /* DASHBOARD STYLES */
+    .dashboard-layout {
+      display: flex;
+      min-height: 85vh;
+      background: #ffffff;
+      border-radius: 28px;
+      margin-top: 20px;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #f9fafb;
+      padding: 24px 16px;
+      border-right: 1px solid #edf2f7;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar h4 {
+      margin-bottom: 24px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: #334155;
+      text-decoration: none;
+      margin-bottom: 6px;
+    }
+
+    .sidebar nav a.active {
+      background: #2563eb;
+      color: white;
+    }
+
+    .main-dashboard {
+      flex: 1;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .task-section {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .task-list {
+      flex: 2;
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .calendar-panel {
+      flex: 1.2;
+      background: #f1f5f9;
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .team-panel {
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .badge {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+
+    .avatar-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      background: #2563eb;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+    }
+
+    hr {
+      margin: 16px 0;
+      border: 0.5px solid #e2e8f0;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      .dashboard-layout {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hidden radio controls for page switching (acts like router) -->
+  <input type="radio" name="page" id="home-radio" class="nav-radio" checked>
+  <input type="radio" name="page" id="pricing-radio" class="nav-radio">
+  <input type="radio" name="page" id="login-radio" class="nav-radio">
+  <input type="radio" name="page" id="dashboard-radio" class="nav-radio">
+
+  <div class="container">
+    <!-- Navigation -->
+    <div class="navbar">
+      <div class="logo">
+        <i class="fas fa-sync-alt"></i> FlowSync
+      </div>
+      <div class="nav-links">
+        <label for="home-radio" class="nav-label">Home</label>
+        <label for="pricing-radio" class="nav-label">Pricing</label>
+        <label for="login-radio" class="nav-label">Login</label>
+        <label for="dashboard-radio" class="btn btn-outline nav-label" style="padding:8px 20px;">Dashboard <i class="fas fa-arrow-right"></i></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pages container -->
+  <div class="pages container">
+    <!-- HOME PAGE -->
+    <div id="home-page" class="page">
+      <div class="hero">
+        <h1>Manage your team without the chaos</h1>
+        <p>FlowSync brings clarity to tasks, deadlines, and collaboration — so your small team stays in flow.</p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <i class="fas fa-tasks"></i>
+            <h3>Smart Tasks</h3>
+            <p>Assign, prioritize, and track work in seconds.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>Team Calendar</h3>
+            <p>See who’s doing what and when.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-users"></i>
+            <h3>Live Collab</h3>
+            <p>Real-time updates, no more spreadsheets.</p>
+          </div>
+        </div>
+        <div class="cta-button">
+          <label for="login-radio" class="btn btn-primary nav-label" style="font-size:1.1rem; padding:14px 36px;">
+            <i class="fas fa-bolt"></i> Start Free Trial
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING PAGE -->
+    <div id="pricing-page" class="page">
+      <div class="pricing-header">
+        <h2>Simple, transparent pricing</h2>
+        <p style="color:#475569;">Always know what you’ll pay. Cancel anytime.</p>
+      </div>
+      <div class="pricing-cards">
+        <div class="card">
+          <h3>Basic</h3>
+          <div class="price">$9<span style="font-size:1rem;">/mo</span></div>
+          <ul>
+            <li><i class="fas fa-check-circle"></i> Up to 5 projects</li>
+            <li><i class="fas fa-check-circle"></i> Basic task boards</li>
+            <li><i class="fas fa-check-circle"></i> 5GB storage</li>
+          </ul>
+          <button class="btn btn-outline" style="width:100%;">Get Started</button>
+        </div>
+        <div class="card" style="border:2px solid #2563eb; transform:scale(1.02);">
+          <h3>Pro</h3>
+          <div class="price">$29<span style="font-size:1rem;">/mo</span></div>
+          <ul>
+            <li><i class="fas fa-check-circle"></i> Unlimited projects</li>
+            <li><i class="fas fa-check-circle"></i> Calendar & timeline</li>
+            <li><i class="fas fa-check-circle"></i> 50GB storage</li>
+            <li><i class="fas fa-check-circle"></i> Priority support</li>
+          </ul>
+          <button class="btn btn-primary" style="width:100%;">Start Pro</button>
+        </div>
+        <div class="card">
+          <h3>Enterprise</h3>
+          <div class="price">Custom</div>
+          <ul>
+            <li><i class="fas fa-check-circle"></i> Unlimited everything</li>
+            <li><i class="fas fa-check-circle"></i> SSO & advanced security</li>
+            <li><i class="fas fa-check-circle"></i> Dedicated manager</li>
+          </ul>
+          <button class="btn btn-outline" style="width:100%;">Contact Sales</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN / SIGNUP PAGE -->
+    <div id="login-page" class="page">
+      <div class="auth-container">
+        <div class="form-card">
+          <h2>Welcome back</h2>
+          <p style="color:#64748b; margin-bottom:10px;">Sign in to FlowSync</p>
+          <div class="input-group">
+            <label>Email</label>
+            <input type="email" placeholder="you@team.com" value="alex@flowsync.co">
+          </div>
+          <div class="input-group">
+            <label>Password</label>
+            <input type="password" placeholder="••••••••" value="12345678">
+          </div>
+          <button class="full-btn">Sign in <i class="fas fa-arrow-right"></i></button>
+          <p style="margin-top:20px; text-align:center; font-size:0.9rem;">Don't have an account? <a href="#" style="color:#2563eb;">Start free trial</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD PAGE (the challenge) -->
+    <div id="dashboard-page" class="page">
+      <div style="margin-top:10px;">
+        <h2 style="font-weight:700; margin-bottom:4px;">👋 Good morning, Team Flow</h2>
+        <p style="color:#475569;">Here's your overview for today.</p>
+      </div>
+      <div class="dashboard-layout">
+        <!-- Sidebar inside dashboard -->
+        <div class="sidebar">
+          <h4><i class="fas fa-sync-alt"></i> FlowSync</h4>
+          <nav>
+            <a href="#" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="#"><i class="fas fa-check-circle"></i> My Tasks</a>
+            <a href="#"><i class="fas fa-calendar-week"></i> Calendar</a>
+            <a href="#"><i class="fas fa-user-friends"></i> Team</a>
+            <a href="#"><i class="fas fa-cog"></i> Settings</a>
+          </nav>
+        </div>
+        <!-- Main dashboard content -->
+        <div class="main-dashboard">
+          <div class="task-section">
+            <div class="task-list">
+              <h3 style="display:flex; justify-content:space-between;">📋 Today's Tasks <span class="badge">4 pending</span></h3>
+              <div class="task-item">
+                <span><i class="far fa-circle" style="color:#94a3b8;"></i> <strong>Design new onboarding flow</strong></span>
+                <span class="badge">High</span>
+              </div>
+              <div class="task-item">
+                <span><i class="far fa-check-circle" style="color:#2563eb;"></i> <strong>Update API endpoints</strong></span>
+                <span class="badge">In Progress</span>
+              </div>
+              <div class="task-item">
+                <span><i class="far fa-circle"></i> <strong>Client presentation</strong></span>
+                <span class="badge">Medium</span>
+              </div>
+              <div class="task-item">
+                <span><i class="far fa-circle"></i> <strong>Code review for PR #42</strong></span>
+                <span class="badge">Low</span>
+              </div>
+            </div>
+            <div class="calendar-panel">
+              <h3>📅 March 2026</h3>
+              <div style="display:grid; grid-template-columns: repeat(7,1fr); gap:4px; margin-top:12px; text-align:center;">
+                <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+                <span>8</span><span>9</span><span style="background:#2563eb; color:white; border-radius:50%;">10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+                <span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span>
+              </div>
+              <p style="margin-top:16px;"><i class="fas fa-circle" style="color:#2563eb; font-size:0.5rem;"></i> Team sync at 2pm</p>
+            </div>
+          </div>
+          <div class="team-panel">
+            <h3>👥 Team members (4 online)</h3>
+            <div class="avatar-group">
+              <div class="avatar">AK</div>
+              <div class="avatar" style="background:#7c3aed;">JM</div>
+              <div class="avatar" style="background:#059669;">LC</div>
+              <div class="avatar" style="background:#d97706;">RT</div>
+              <div style="margin-left:8px; display:flex; align-items:center; color:#475569;"><i class="fas fa-plus-circle"></i> +2</div>
+            </div>
+            <hr>
+            <div style="display:flex; justify-content: space-between;">
+              <span><strong>Alex Kim</strong> (you) · online</span>
+              <span><i class="fas fa-circle" style="color:#22c55e;"></i> active now</span>
+            </div>
+            <div style="display:flex; justify-content: space-between; margin-top:8px;">
+              <span><strong>Jamie Miller</strong> · online</span>
+              <span>working on design</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

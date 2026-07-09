@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Interactive Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: #000000;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            overflow: hidden;
+        }
+
+        /* Bubble Container */
+        #bubbleContainer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .bubble {
+            position: absolute;
+            border: 2px solid #000000;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+        }
+
+        /* Central Canvas */
+        #fluidCanvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90vw;
+            max-height: 90vh;
+            z-index: 10;
+        }
+
+        /* Content */
+        .hero-content {
+            position: relative;
+            z-index: 20;
+            text-align: center;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(2rem, 8vw, 5rem);
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .hero-content p {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            font-weight: 300;
+            letter-spacing: 1px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            .hero-content p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div id="bubbleContainer"></div>
+        <canvas id="fluidCanvas"></canvas>
+        <div class="hero-content">
+            <h1>Elegance Refined</h1>
+            <p>Interactive Design at Scale</p>
+        </div>
+    </section>
+
+    <script>
+        // Bubble Physics
+        const bubbleContainer = document.getElementById('bubbleContainer');
+        const bubbles = [];
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+
+        class Bubble {
+            constructor() {
+                this.radius = Math.random() * 40 + 20;
+                this.x = Math.random() * window.innerWidth;
+                this.y = Math.random() * window.innerHeight;
+                this.vx = (Math.random() - 0.5) * 1;
+                this.vy = (Math.random() - 0.5) * 1;
+                this.element = document.createElement('div');
+                this.element.className = 'bubble';
+                this.element.style.width = this.radius * 2 + 'px';
+                this.element.style.height = this.radius * 2 + 'px';
+                this.element.style.left = this.x + 'px';
+                this.element.style.top = this.y + 'px';
+                bubbleContainer.appendChild(this.element);
+            }
+
+            update() {
+                const dx = mouseX - this.x;
+                const dy = mouseY - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const repulsion = 150;
+
+                if (distance < repulsion) {
+                    const force = (repulsion - distance) / repulsion * 0.5;
+                    this.vx -= (dx / distance) * force;
+                    this.vy -= (dy / distance) * force;
+                }
+
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x - this.radius < 0 || this.x + this.radius > window.innerWidth) {
+                    this.vx *= -1;
+                    this.x = Math.max(this.radius, Math.min(window.innerWidth - this.radius, this.x));
+                }
+                if (this.y - this.radius < 0 || this.y + this.radius > window.innerHeight) {
+                    this.vy *= -1;
+                    this.y = Math.max(this.radius, Math.min(window.innerHeight - this.radius, this.y));
+                }
+
+                this.element.style.left = (this.x - this.radius) + 'px';
+                this.element.style.top = (this.y - this.radius) + 'px';
+            }
+        }
+
+        function initBubbles() {
+            for (let i = 0; i < 5; i++) {
+                bubbles.push(new Bubble());
+            }
+        }
+
+        function animateBubbles() {
+            bubbles.forEach(bubble => bubble.update());
+            requestAnimationFrame(animateBubbles);
+        }
+
+        // Fluid Canvas Animation
+        const canvas = document.getElementById('fluidCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 400;
+        canvas.height = 400;
+
+        let time = 0;
+
+        function drawFluidAnimation() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#000000';
+
+            for (let i = 0; i < 6; i++) {
+                const x = canvas.width / 2 + Math.sin(time * 0.01 + i) * 80;
+                const y = canvas.height / 2 + Math.cos(time * 0.01 + i * 1.2) * 80;
+                const size = 30 + Math.sin(time * 0.02 + i) * 15;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            time++;
+            requestAnimationFrame(drawFluidAnimation);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        window.addEventListener('load', () => {
+            initBubbles();
+            animateBubbles();
+            drawFluidAnimation();
+        });
+    </script>
+</body>
+</html>
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo">ELEGANCE</div>
+        <ul class="nav-menu">
+            <li><a href="#home" class="nav-link">Home</a></li>
+            <li><a href="#services" class="nav-link">Services</a></li>
+            <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+            <li><a href="#about" class="nav-link">About</a></li>
+            <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Services Section -->
+<section id="services" class="services">
+    <div class="services-container">
+        <h2 class="section-title">Our Services</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">01</div>
+                <h3>UI/UX Design</h3>
+                <p>Crafting intuitive and beautiful user interfaces that enhance user experience and drive engagement.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">02</div>
+                <h3>Web Development</h3>
+                <p>Building responsive, scalable web applications with cutting-edge technologies and best practices.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">03</div>
+                <h3>Brand Strategy</h3>
+                <p>Developing comprehensive brand identities that resonate with your target audience.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">04</div>
+                <h3>Motion Design</h3>
+                <p>Creating compelling animations and interactions that bring designs to life.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Portfolio Section -->
+<section id="portfolio" class="portfolio">
+    <div class="portfolio-container">
+        <h2 class="section-title">Featured Work</h2>
+        <div class="portfolio-grid">
+            <div class="portfolio-item">
+                <div class="portfolio-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                <div class="portfolio-content">
+                    <h3>Project Alpha</h3>
+                    <p>Enterprise SaaS Platform</p>
+                    <a href="#" class="portfolio-link">View Case Study →</a>
+                </div>
+            </div>
+            <div class="portfolio-item">
+                <div class="portfolio-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                <div class="portfolio-content">
+                    <h3>Project Beta</h3>
+                    <p>Mobile App Experience</p>
+                    <a href="#" class="portfolio-link">View Case Study →</a>
+                </div>
+            </div>
+            <div class="portfolio-item">
+                <div class="portfolio-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                <div class="portfolio-content">
+                    <h3>Project Gamma</h3>
+                    <p>E-Commerce Redesign</p>
+                    <a href="#" class="portfolio-link">View Case Study →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="about">
+    <div class="about-container">
+        <div class="about-content">
+            <h2 class="section-title">About Our Studio</h2>
+            <p>We are a team of designers and developers dedicated to creating exceptional digital experiences. With over a decade of combined expertise, we transform complex challenges into elegant solutions.</p>
+            <div class="about-stats">
+                <div class="stat">
+                    <h4>150+</h4>
+                    <p>Projects Completed</p>
+                </div>
+                <div class="stat">
+                    <h4>50+</h4>
+                    <p>Happy Clients</p>
+                </div>
+                <div class="stat">
+                    <h4>12+</h4>
+                    <p>Years Experience</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="contact">
+    <div class="contact-container">
+        <h2 class="section-title">Get In Touch</h2>
+        <div class="contact-content">
+            <div class="contact-info">
+                <div class="info-item">
+                    <h4>Email</h4>
+                    <p>hello@elegance.com</p>
+                </div>
+                <div class="info-item">
+                    <h4>Phone</h4>
+                    <p>+1 (555) 123-4567</p>
+                </div>
+                <div class="info-item">
+                    <h4>Address</h4>
+                    <p>123 Design Street, Creative City, CC 12345</p>
+                </div>
+            </div>
+            <form class="contact-form">
+                <input type="text" placeholder="Your Name" required>
+                <input type="email" placeholder="Your Email" required>
+                <textarea placeholder="Your Message" rows="5" required></textarea>
+                <button type="submit" class="submit-btn">Send Message</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>&copy; 2024 Elegance Design Studio. All rights reserved.</p>
+        <div class="social-links">
+            <a href="#">Twitter</a>
+            <a href="#">Instagram</a>
+            <a href="#">LinkedIn</a>
+        </div>
+    </div>
+</footer>
+
+<style>
+    /* Navigation */
+    .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+    }
+
+    .nav-menu {
+        display: flex;
+        list-style: none;
+        gap: 2rem;
+    }
+
+    .nav-link {
+        text-decoration: none;
+        color: #000;
+        font-size: 0.95rem;
+        transition: color 0.3s ease;
+        position: relative;
+    }
+
+    .nav-link:hover {
+        color: #667eea;
+    }
+
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #667eea;
+        transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+        width: 100%;
+    }
+
+    /* Services Section */
+    .services {
+        padding: 6rem 2rem;
+        background: #ffffff;
+    }
+
+    .services-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .section-title {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        text-align: center;
+        margin-bottom: 3rem;
+        font-weight: 300;
+        letter-spacing: 1px;
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .service-card {
+        padding: 2rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background: #fafafa;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .service-card:hover {
+        transform: translateY(-5px);
+        border-color: #667eea;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+    }
+
+    .service-icon {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 1rem;
+    }
+
+    .service-card h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .service-card p {
+        color: #666;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    /* Portfolio Section */
+    .portfolio {
+        padding: 6rem 2rem;
+        background: #f5f5f5;
+    }
+
+    .portfolio-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .portfolio-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .portfolio-item {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .portfolio-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .portfolio-image {
+        height: 250px;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .portfolio-content {
+        padding: 1.5rem;
+    }
+
+    .portfolio-content h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .portfolio-content p {
+        color: #999;
+        margin-bottom: 1rem;
+    }
+
+    .portfolio-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .portfolio-link:hover {
+        color: #764ba2;
+    }
+
+    /* About Section */
+    .about {
+        padding: 6rem 2rem;
+        background: #ffffff;
+    }
+
+    .about-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .about-content p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #555;
+        max-width: 800px;
+        margin-bottom: 2rem;
+    }
+
+    .about-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .stat {
+        padding: 2rem;
+        background: #fafafa;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat h4 {
+        font-size: 2.5rem;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat p {
+        color: #999;
+        font-size: 1rem;
+    }
+
+    /* Contact Section */
+    .contact {
+        padding: 6rem 2rem;
+        background: #f5f5f5;
+    }
+
+    .contact-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .contact-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-top: 3rem;
+    }
+
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .info-item h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-item p {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .submit-btn {
+        padding: 1rem 2rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        background: #764ba2;
+    }
+
+    /* Footer */
+    .footer {
+        padding: 2rem;
+        background: #1a1a1a;
+        color: white;
+        text-align: center;
+    }
+
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .social-links a {
+        color: #999;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .social-links a:hover {
+        color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .nav-menu {
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+        .contact-content {
+            grid-template-columns: 1fr;
+        }
+        .footer-content {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .services-grid,
+        .portfolio-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    // Enhanced Bubble Physics Background
+    class PhysicsBubble {
+        constructor(canvas) {
+            this.canvas = canvas;
+            this.radius = Math.random() * 80 + 40;
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 2;
+            this.vy = (Math.random() - 0.5) * 2;
+            this.opacity = Math.random() * 0.3 + 0.1;
+            this.color = `hsla(${Math.random() * 360}, 70%, 60%, ${this.opacity})`;
+            this.friction = 0.995;
+            this.gravity = 0;
+        }
+
+        update() {
+            this.vx *= this.friction;
+            this.vy *= this.friction;
+            this.vy += this.gravity;
+            this.x += this.vx;
+            this.y += this.vy;
+
+            if (this.x - this.radius < 0 || this.x + this.radius > this.canvas.width) {
+                this.vx *= -0.8;
+                this.x = Math.max(this.radius, Math.min(this.canvas.width - this.radius, this.x));
+            }
+            if (this.y - this.radius < 0 || this.y + this.radius > this.canvas.height) {
+                this.vy *= -0.8;
+                this.y = Math.max(this.radius, Math.min(this.canvas.height - this.radius, this.y));
+            }
+        }
+
+        draw(ctx) {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        checkCollision(other) {
+            const dx = other.x - this.x;
+            const dy = other.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < this.radius + other.radius;
+        }
+    }
+
+    // Background Canvas Setup
+    const heroCanvas = document.getElementById('fluidCanvas');
+    const heroCtx = heroCanvas.getContext('2d');
+    heroCanvas.width = window.innerWidth;
+    heroCanvas.height = window.innerHeight;
+
+    const bubbles = [];
+    const bubbleCount = 8;
+
+    for (let i = 0; i < bubbleCount; i++) {
+        bubbles.push(new PhysicsBubble(heroCanvas));
+    }
+
+    function animateHeroBubbles() {
+        heroCtx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
+
+        bubbles.forEach(bubble => {
+            bubble.update();
+            bubble.draw(heroCtx);
+        });
+
+        for (let i = 0; i < bubbles.length; i++) {
+            for (let j = i + 1; j < bubbles.length; j++) {
+                if (bubbles[i].checkCollision(bubbles[j])) {
+                    const dx = bubbles[j].x - bubbles[i].x;
+                    const dy = bubbles[j].y - bubbles[i].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const force = 0.5;
+                    bubbles[i].vx -= (dx / distance) * force;
+                    bubbles[i].vy -= (dy / distance) * force;
+                    bubbles[j].vx += (dx / distance) * force;
+                    bubbles[j].vy += (dy / distance) * force;
+                }
+            }
+        }
+
+        requestAnimationFrame(animateHeroBubbles);
+    }
+
+    window.addEventListener('resize', () => {
+        heroCanvas.width = window.innerWidth;
+        heroCanvas.height = window.innerHeight;
+    });
+
+    // Smooth Scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    window.addEventListener('load', () => {
+        animateHeroBubbles();
+    });
+</script>

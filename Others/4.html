@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arora Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lumina: {
+                            50: '#f0f7ff',
+                            100: '#e0efff',
+                            200: '#b8daff',
+                            300: '#8cc4ff',
+                            400: '#5aadff',
+                            500: '#2b96ff',
+                            600: '#1a7ad9',
+                            700: '#0f5fb3',
+                            800: '#08458c',
+                            900: '#042d66',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f7ff;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2b96ff;
+            border-radius: 10px;
+        }
+
+        /* Smooth transitions */
+        * {
+            transition: background-color 0.5s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        /* Glass morphism */
+        .glass {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Pulse animation for status */
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 0.5;
+            }
+        }
+        .pulse-dot {
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        /* Bounce animation for bell */
+        @keyframes bell-bounce {
+            0%,
+            100% {
+                transform: rotate(0);
+            }
+            25% {
+                transform: rotate(-15deg);
+            }
+            75% {
+                transform: rotate(15deg);
+            }
+        }
+        .bell-bounce {
+            animation: bell-bounce 0.5s ease-in-out;
+        }
+
+        /* Count up animation */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-up {
+            animation: fadeUp 0.6s ease forwards;
+        }
+        .fade-up-delay-1 {
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+        .fade-up-delay-2 {
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+        .fade-up-delay-3 {
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
+        .fade-up-delay-4 {
+            animation-delay: 0.4s;
+            opacity: 0;
+        }
+
+        /* Bar grow animation */
+        @keyframes growBar {
+            from {
+                height: 0%;
+            }
+            to {
+                height: var(--target-height);
+            }
+        }
+        .grow-bar {
+            animation: growBar 1s ease forwards;
+        }
+
+        /* Slide in for notifications */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .slide-in {
+            animation: slideInRight 0.4s ease forwards;
+        }
+        .slide-in-delay-1 {
+            animation-delay: 0.05s;
+            opacity: 0;
+        }
+        .slide-in-delay-2 {
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+        .slide-in-delay-3 {
+            animation-delay: 0.15s;
+            opacity: 0;
+        }
+        .slide-in-delay-4 {
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+        .slide-in-delay-5 {
+            animation-delay: 0.25s;
+            opacity: 0;
+        }
+
+        /* Progress ring rotation */
+        .progress-ring {
+            transition: stroke-dashoffset 1.5s ease;
+        }
+
+        /* Search expand */
+        .search-input {
+            transition: width 0.4s ease, box-shadow 0.3s ease;
+        }
+        .search-input:focus {
+            width: 300px;
+            box-shadow: 0 0 0 4px rgba(43, 150, 255, 0.15);
+        }
+
+        /* Todo item slide */
+        @keyframes slideOut {
+            to {
+                opacity: 0;
+                transform: translateX(100px);
+                height: 0;
+                margin: 0;
+                padding: 0;
+            }
+        }
+        .todo-removing {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        /* Theme transition overlay */
+        .theme-transition {
+            transition: background 0.8s ease, color 0.5s ease;
+        }
+
+        /* Notification dropdown */
+        .notif-dropdown {
+            animation: dropDown 0.3s ease forwards;
+            transform-origin: top right;
+        }
+        @keyframes dropDown {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Hover card glow */
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.4s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px -12px rgba(43, 150, 255, 0.25);
+        }
+
+        /* Sidebar transition */
+        .sidebar-transition {
+            transition: width 0.4s ease, padding 0.4s ease;
+        }
+
+        /* Weather icon fade */
+        .weather-icon {
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .weather-icon-enter {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .weather-icon-exit {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        /* Glass card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .theme-blue .glass-card {
+            background: rgba(43, 150, 255, 0.08);
+            border-color: rgba(43, 150, 255, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="theme-white min-h-screen">
+        <div class="flex h-screen overflow-hidden">
+
+            <!-- ===== SIDEBAR ===== -->
+            <aside id="sidebar" class="sidebar-transition w-[240px] h-screen bg-white/80 glass border-r border-gray-200/50 flex-shrink-0 flex flex-col p-4 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/30">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 mb-8 px-2">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-lumina-400 to-lumina-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-lumina-500/30">L</div>
+                    <span class="text-xl font-bold text-gray-800 theme-blue:text-white">Lumina</span>
+                </div>
+
+                <!-- Nav -->
+                <nav class="flex-1 space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-lumina-100 text-lumina-700 theme-blue:bg-lumina-800/40 theme-blue:text-lumina-300 font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+                        Dashboard
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 theme-blue:text-gray-400 theme-blue:hover:bg-lumina-800/30 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        Analytics
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 theme-blue:text-gray-400 theme-blue:hover:bg-lumina-800/30 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        Calendar
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 theme-blue:text-gray-400 theme-blue:hover:bg-lumina-800/30 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        Team
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 theme-blue:text-gray-400 theme-blue:hover:bg-lumina-800/30 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        Settings
+                    </a>
+                </nav>
+
+                <!-- Sidebar footer - Theme toggle -->
+                <div class="pt-4 border-t border-gray-200/50 theme-blue:border-lumina-700/30">
+                    <button id="themeToggle" class="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gray-100/50 hover:bg-gray-200/50 theme-blue:bg-lumina-800/30 theme-blue:hover:bg-lumina-800/50 transition-all">
+                        <span class="text-sm text-gray-600 theme-blue:text-gray-300">Switch Theme</span>
+                        <span class="text-xl" id="themeIcon">☀️</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- ===== MAIN CONTENT ===== -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-lumina-50 to-white theme-blue:from-lumina-900/40 theme-blue:to-lumina-950/60">
+
+                <!-- ===== TOP BAR ===== -->
+                <header class="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800 theme-blue:text-white">Dashboard</h1>
+                        <p class="text-sm text-gray-500 theme-blue:text-gray-400">Welcome back, Alex! Here's what's happening.</p>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <!-- Search -->
+                        <div class="relative">
+                            <input type="text" placeholder="Search..." class="search-input w-[180px] pl-10 pr-4 py-2 rounded-xl border border-gray-200 bg-white/70 text-sm text-gray-700 focus:outline-none focus:border-lumina-400 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/40 theme-blue:text-white theme-blue:placeholder:text-gray-500" />
+                            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+
+                        <!-- Notification Bell -->
+                        <div class="relative">
+                            <button id="notifBtn" class="relative p-2 rounded-xl hover:bg-gray-100/70 theme-blue:hover:bg-lumina-800/40 transition-all">
+                                <svg class="w-6 h-6 text-gray-600 theme-blue:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                <span id="notifBadge" class="absolute -top-0.5 -right-0.5 w-5 h-5 text-[10px] font-bold bg-red-500 text-white rounded-full flex items-center justify-center shadow-md">3</span>
+                            </button>
+
+                            <!-- Notification Dropdown -->
+                            <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-[360px] bg-white/95 glass rounded-2xl shadow-2xl border border-gray-200/50 overflow-hidden theme-blue:bg-lumina-900/80 theme-blue:border-lumina-700/40 notif-dropdown">
+                                <div class="p-4 border-b border-gray-200/50 theme-blue:border-lumina-700/30 flex items-center justify-between">
+                                    <span class="font-semibold text-gray-800 theme-blue:text-white">Notifications</span>
+                                    <button class="text-xs text-lumina-500 hover:text-lumina-700">Mark all read</button>
+                                </div>
+                                <div class="max-h-64 overflow-y-auto p-2 space-y-1">
+                                    <div class="p-3 rounded-xl hover:bg-gray-50 theme-blue:hover:bg-lumina-800/30 transition-all slide-in slide-in-delay-1">
+                                        <p class="text-sm text-gray-800 theme-blue:text-gray-200"><span class="font-medium">Sarah</span> liked your post</p>
+                                        <span class="text-xs text-gray-400">2 min ago</span>
+                                    </div>
+                                    <div class="p-3 rounded-xl hover:bg-gray-50 theme-blue:hover:bg-lumina-800/30 transition-all slide-in slide-in-delay-2">
+                                        <p class="text-sm text-gray-800 theme-blue:text-gray-200"><span class="font-medium">Project Alpha</span> needs review</p>
+                                        <span class="text-xs text-gray-400">15 min ago</span>
+                                    </div>
+                                    <div class="p-3 rounded-xl hover:bg-gray-50 theme-blue:hover:bg-lumina-800/30 transition-all slide-in slide-in-delay-3">
+                                        <p class="text-sm text-gray-800 theme-blue:text-gray-200"><span class="font-medium">Team sync</span> scheduled for 3PM</p>
+                                        <span class="text-xs text-gray-400">1 hour ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Avatar -->
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-lumina-400 to-lumina-600 flex items-center justify-center text-white font-semibold shadow-lg shadow-lumina-500/30 cursor-pointer hover:scale-105 transition-transform">
+                                A
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-white rounded-full pulse-dot"></span>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- ===== STATS CARDS ===== -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="stat-card bg-white/80 glass-card rounded-2xl p-6 border border-gray-200/50 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/30 fade-up fade-up-delay-1">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 theme-blue:text-gray-400">Total Revenue</p>
+                                <p id="stat1" class="text-2xl font-bold text-gray-800 theme-blue:text-white">$0</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-lumina-100 flex items-center justify-center text-lumina-500 theme-blue:bg-lumina-800/40 theme-blue:text-lumina-300">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="text-xs text-green-500 font-medium">↑ 12.5%</span>
+                            <span class="text-xs text-gray-400">vs last month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card bg-white/80 glass-card rounded-2xl p-6 border border-gray-200/50 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/30 fade-up fade-up-delay-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 theme-blue:text-gray-400">Active Users</p>
+                                <p id="stat2" class="text-2xl font-bold text-gray-800 theme-blue:text-white">0</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-lumina-100 flex items-center justify-center text-lumina-500 theme-blue:bg-lumina-800/40 theme-blue:text-lumina-300">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="text-xs text-green-500 font-medium">↑ 8.2%</span>
+                            <span class="text-xs text-gray-400">vs last week</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card bg-white/80 glass-card rounded-2xl p-6 border border-gray-200/50 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/30 fade-up fade-up-delay-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 theme-blue:text-gray-400">Conversion Rate</p>
+                                <p id="stat3" class="text-2xl font-bold text-gray-800 theme-blue:text-white">0%</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-lumina-100 flex items-center justify-center text-lumina-500 theme-blue:bg-lumina-800/40 theme-blue:text-lumina-300">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="text-xs text-red-500 font-medium">↓ 2.1%</span>
+                            <span class="text-xs text-gray-400">vs last month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card bg-white/80 glass-card rounded-2xl p-6 border border-gray-200/50 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/30 fade-up fade-up-delay-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 theme-blue:text-gray-400">Pending Tasks</p>
+                                <p id="stat4" class="text-2xl font-bold text-gray-800 theme-blue:text-white">0</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-lumina-100 flex items-center justify-center text-lumina-500 theme-blue:bg-lumina-800/40 theme-blue:text-lumina-300">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="text-xs text-yellow-500 font-medium">⚡ 3 urgent</span>
+                            <span class="text-xs text-gray-400">needs attention</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== CHART + ACTIVITY + WEATHER ===== -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Chart -->
+                    <div class="lg:col-span-2 bg-white/80 glass-card rounded-2xl p-6 border border-gray-200/50 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/30">
+                        <h3 class="text-sm font-semibold text-gray-700 theme-blue:text-gray-200 mb-4">Weekly Activity</h3>
+                        <div class="flex items-end justify-between h-48 gap-3">
+                            <div class="flex flex-col items-center gap-2 flex-1">
+                                <div class="w-full bg-lumina-200/50 rounded-t-lg theme-blue:bg-lumina-700/30" style="height: 65%; --target-height: 65%;" class="grow-bar"></div>
+                                <span class="text-xs text-gray-500 theme-blue:text-gray-400">Mon</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-2 flex-1">
+                                <div class="w-full bg-lumina-300/60 rounded-t-lg theme-blue:bg-lumina-600/40" style="height: 80%; --target-height: 80%;" class="grow-bar"></div>
+                                <span class="text-xs text-gray-500 theme-blue:text-gray-400">Tue</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-2 flex-1">
+                                <div class="w-full bg-lumina-400/70 rounded-t-lg theme-blue:bg-lumina-500/50" style="height: 45%; --target-height: 45%;" class="grow-bar"></div>
+                                <span class="text-xs text-gray-500 theme-blue:text-gray-400">Wed</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-2 flex-1">
+                                <div class="w-full bg-lumina-500/80 rounded-t-lg theme-blue:bg-lumina-400/60" style="height: 95%; --target-height: 95%;" class="grow-bar"></div>
+                                <span class="text-xs text-gray-500 theme-blue:text-gray-400">Thu</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-2 flex-1">
+                                <div class="w-full bg-lumina-400/70 rounded-t-lg theme-blue:bg-lumina-500/50" style="height: 55%; --target-height: 55%;" class="grow-bar"></div>
+                                <span class="text-xs text-gray-500 theme-blue:text-gray-400">Fri</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-2 flex-1">
+                                <div class="w-full bg-lumina-300/60 rounded-t-lg theme-blue:bg-lumina-600/40" style="height: 70%; --target-height: 70%;" class="grow-bar"></div>
+                                <span class="text-xs text-gray-500 theme-blue:text-gray-400">Sat</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-2 flex-1">
+                                <div class="w-full bg-lumina-200/50 rounded-t-lg theme-blue:bg-lumina-700/30" style="height: 30%; --target-height: 30%;" class="grow-bar"></div>
+                                <span class="text-xs text-gray-500 theme-blue:text-gray-400">Sun</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weather + Quick Actions -->
+                    <div class="space-y-6">
+                        <!-- Weather -->
+                        <div class="bg-white/80 glass-card rounded-2xl p-6 border border-gray-200/50 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/30">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 theme-blue:text-gray-400">Weather</p>
+                                    <p class="text-2xl font-bold text-gray-800 theme-blue:text-white">72°F</p>
+                                    <p class="text-sm text-gray-500 theme-blue:text-gray-400">Sunny</p>
+                                </div>
+                                <div id="weatherIcon" class="text-5xl transition-all">☀️</div>
+                            </div>
+                            <div class="mt-3 flex gap-2">
+                                <button onclick="changeWeather('☀️')" class="px-3 py-1 rounded-lg text-sm bg-gray-100/70 hover:bg-gray-200/70 theme-blue:bg-lumina-800/30 theme-blue:hover:bg-lumina-800/50 transition-all">☀️</button>
+                                <button onclick="changeWeather('⛅')" class="px-3 py-1 rounded-lg text-sm bg-gray-100/70 hover:bg-gray-200/70 theme-blue:bg-lumina-800/30 theme-blue:hover:bg-lumina-800/50 transition-all">⛅</button>
+                                <button onclick="changeWeather('🌧️')" class="px-3 py-1 rounded-lg text-sm bg-gray-100/70 hover:bg-gray-200/70 theme-blue:bg-lumina-800/30 theme-blue:hover:bg-lumina-800/50 transition-all">🌧️</button>
+                                <button onclick="changeWeather('❄️')" class="px-3 py-1 rounded-lg text-sm bg-gray-100/70 hover:bg-gray-200/70 theme-blue:bg-lumina-800/30 theme-blue:hover:bg-lumina-800/50 transition-all">❄️</button>
+                            </div>
+                        </div>
+
+                        <!-- Progress Rings -->
+                        <div class="bg-white/80 glass-card rounded-2xl p-6 border border-gray-200/50 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/30">
+                            <h3 class="text-sm font-semibold text-gray-700 theme-blue:text-gray-200 mb-3">Project Progress</h3>
+                            <div class="flex items-center justify-around">
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-16 h-16 -rotate-90">
+                                        <circle cx="32" cy="32" r="26" stroke="#e5e7eb" stroke-width="6" fill="none" class="theme-blue:stroke-lumina-700/40"/>
+                                        <circle id="ring1" cx="32" cy="32" r="26" stroke="#2b96ff" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="163.36" class="progress-ring"/>
+                                    </svg>
+                                    <span class="text-xs text-gray-600 theme-blue:text-gray-300 mt-1">Design</span>
+                                    <span class="text-xs font-bold text-lumina-600 theme-blue:text-lumina-300" id="ringLabel1">0%</span>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-16 h-16 -rotate-90">
+                                        <circle cx="32" cy="32" r="26" stroke="#e5e7eb" stroke-width="6" fill="none" class="theme-blue:stroke-lumina-700/40"/>
+                                        <circle id="ring2" cx="32" cy="32" r="26" stroke="#2b96ff" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="163.36" class="progress-ring"/>
+                                    </svg>
+                                    <span class="text-xs text-gray-600 theme-blue:text-gray-300 mt-1">Dev</span>
+                                    <span class="text-xs font-bold text-lumina-600 theme-blue:text-lumina-300" id="ringLabel2">0%</span>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-16 h-16 -rotate-90">
+                                        <circle cx="32" cy="32" r="26" stroke="#e5e7eb" stroke-width="6" fill="none" class="theme-blue:stroke-lumina-700/40"/>
+                                        <circle id="ring3" cx="32" cy="32" r="26" stroke="#2b96ff" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="163.36" class="progress-ring"/>
+                                    </svg>
+                                    <span class="text-xs text-gray-600 theme-blue:text-gray-300 mt-1">Testing</span>
+                                    <span class="text-xs font-bold text-lumina-600 theme-blue:text-lumina-300" id="ringLabel3">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== ACTIVITY FEED + TODO ===== -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Activity Feed -->
+                    <div class="bg-white/80 glass-card rounded-2xl p-6 border border-gray-200/50 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/30">
+                        <h3 class="text-sm font-semibold text-gray-700 theme-blue:text-gray-200 mb-4">Recent Activity</h3>
+                        <div id="activityFeed" class="space-y-2">
+                            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50/50 theme-blue:hover:bg-lumina-800/20 transition-all slide-in slide-in-delay-1">
+                                <div class="w-8 h-8 rounded-full bg-lumina-100 flex items-center justify-center text-lumina-600 theme-blue:bg-lumina-800/40 theme-blue:text-lumina-300">📄</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-700 theme-blue:text-gray-200">Project report uploaded</p>
+                                    <span class="text-xs text-gray-400">2 min ago</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50/50 theme-blue:hover:bg-lumina-800/20 transition-all slide-in slide-in-delay-2">
+                                <div class="w-8 h-8 rounded-full bg-lumina-100 flex items-center justify-center text-lumina-600 theme-blue:bg-lumina-800/40 theme-blue:text-lumina-300">👤</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-700 theme-blue:text-gray-200">New user signed up</p>
+                                    <span class="text-xs text-gray-400">15 min ago</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50/50 theme-blue:hover:bg-lumina-800/20 transition-all slide-in slide-in-delay-3">
+                                <div class="w-8 h-8 rounded-full bg-lumina-100 flex items-center justify-center text-lumina-600 theme-blue:bg-lumina-800/40 theme-blue:text-lumina-300">⭐</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-700 theme-blue:text-gray-200">5-star review received</p>
+                                    <span class="text-xs text-gray-400">1 hour ago</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50/50 theme-blue:hover:bg-lumina-800/20 transition-all slide-in slide-in-delay-4">
+                                <div class="w-8 h-8 rounded-full bg-lumina-100 flex items-center justify-center text-lumina-600 theme-blue:bg-lumina-800/40 theme-blue:text-lumina-300">🔧</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-700 theme-blue:text-gray-200">System maintenance</p>
+                                    <span class="text-xs text-gray-400">3 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50/50 theme-blue:hover:bg-lumina-800/20 transition-all slide-in slide-in-delay-5">
+                                <div class="w-8 h-8 rounded-full bg-lumina-100 flex items-center justify-center text-lumina-600 theme-blue:bg-lumina-800/40 theme-blue:text-lumina-300">💬</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-700 theme-blue:text-gray-200">New comment on task #42</p>
+                                    <span class="text-xs text-gray-400">5 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="mt-4 w-full py-2 text-sm text-lumina-500 hover:text-lumina-700 font-medium theme-blue:text-lumina-300 theme-blue:hover:text-lumina-200 transition-all">View All Activity →</button>
+                    </div>
+
+                    <!-- Todo List -->
+                    <div class="bg-white/80 glass-card rounded-2xl p-6 border border-gray-200/50 theme-blue:bg-lumina-900/30 theme-blue:border-lumina-700/30">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-700 theme-blue:text-gray-200">Todo List</h3>
+                            <span class="text-xs text-gray-400" id="todoCount">3 tasks</span>
+                        </div>
+                        <div id="todoList" class="space-y-2">
+                            <div class="todo-item flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50/50 theme-blue:hover:bg-lumina-800/20 transition-all">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-lumina-500 focus:ring-lumina-400" />
+                                <span class="text-sm text-gray-700 theme-blue:text-gray-200">Review design mockups</span>
+                                <button onclick="deleteTodo(this)" class="ml-auto text-gray-400 hover:text-red-500 transition-all">✕</button>
+                            </div>
+                            <div class="todo-item flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50/50 theme-blue:hover:bg-lumina-800/20 transition-all">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-lumina-500 focus:ring-lumina-400" />
+                                <span class="text-sm text-gray-700 theme-blue:text-gray-200">Update API documentation</span>
+                                <button onclick="deleteTodo(this)" class="ml-auto text-gray-400 hover:text-red-500 transition-all">✕</button>
+                            </div>
+                            <div class="todo-item flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50/50 theme-blue:hover:bg-lumina-800/20 transition-all">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-lumina-500 focus:ring-lumina-400" />
+                                <span class="text-sm text-gray-700 theme-blue:text-gray-200">Prepare weekly sync</span>
+                                <button onclick="deleteTodo(this)" class="ml-auto text-gray-400 hover:text-red-500 transition-all">✕</button>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex gap-2">
+                            <input id="todoInput" type="text" placeholder="Add a task..." class="flex-1 px-4 py-2 rounded-xl border border-gray-200 bg-white/70 text-sm text-gray-700 focus:outline-none focus:border-lumina-400 theme-blue:bg-lumina-800/30 theme-blue:border-lumina-700/40 theme-blue:text-white theme-blue:placeholder:text-gray-500 transition-all" />
+                            <button onclick="addTodo()" class="px-4 py-2 bg-lumina-500 hover:bg-lumina-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-lumina-500/30 transition-all">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-8 text-center text-xs text-gray-400 theme-blue:text-gray-500">
+                    Lumina Dashboard • Built with ☕ and lots of animations
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. THEME TOGGLE (White ↔ Blue Light)
+        // ============================================================
+        let isBlueTheme = false;
+        const app = document.getElementById('app');
+        const themeIcon = document.getElementById('themeIcon');
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            isBlueTheme = !isBlueTheme;
+            app.classList.toggle('theme-blue', isBlueTheme);
+            themeIcon.textContent = isBlueTheme ? '🌊' : '☀️';
+        });
+
+        // ============================================================
+        // 2. COUNT UP ANIMATION (Stats)
+        // ============================================================
+        function animateCountUp(elementId, target, suffix = '') {
+            const el = document.getElementById(elementId);
+            let current = 0;
+            const step = Math.ceil(target / 50);
+            const interval = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                }
+                el.textContent = current + suffix;
+            }, 25);
+        }
+
+        // Run on load
+        window.addEventListener('load', () => {
+            animateCountUp('stat1', 84720, '$');
+            animateCountUp('stat2', 1248, '');
+            animateCountUp('stat3', 23, '%');
+            animateCountUp('stat4', 47, '');
+
+            // Progress rings
+            animateRing('ring1', 'ringLabel1', 75);
+            animateRing('ring2', 'ringLabel2', 45);
+            animateRing('ring3', 'ringLabel3', 60);
+        });
+
+        // ============================================================
+        // 3. PROGRESS RINGS
+        // ============================================================
+        function animateRing(ringId, labelId, percent) {
+            const ring = document.getElementById(ringId);
+            const label = document.getElementById(labelId);
+            const circumference = 163.36;
+            const offset = circumference - (percent / 100) * circumference;
+
+            setTimeout(() => {
+                ring.style.strokeDashoffset = offset;
+                label.textContent = percent + '%';
+            }, 300);
+        }
+
+        // ============================================================
+        // 4. NOTIFICATION DROPDOWN
+        // ============================================================
+        const notifBtn = document.getElementById('notifBtn');
+        const notifDropdown = document.getElementById('notifDropdown');
+        let notifOpen = false;
+
+        notifBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notifOpen = !notifOpen;
+            notifDropdown.classList.toggle('hidden', !notifOpen);
+
+            // Bell bounce
+            const bell = notifBtn.querySelector('svg');
+            bell.classList.remove('bell-bounce');
+            void bell.offsetWidth;
+            bell.classList.add('bell-bounce');
+        });
+
+        document.addEventListener('click', () => {
+            notifOpen = false;
+            notifDropdown.classList.add('hidden');
+        });
+
+        // ============================================================
+        // 5. WEATHER WIDGET (Fade transition)
+        // ============================================================
+        function changeWeather(icon) {
+            const el = document.getElementById('weatherIcon');
+            el.classList.add('weather-icon-exit');
+            setTimeout(() => {
+                el.textContent = icon;
+                el.classList.remove('weather-icon-exit');
+                el.classList.add('weather-icon-enter');
+            }, 300);
+        }
+
+        // ============================================================
+        // 6. TODO LIST (Add / Delete with animations)
+        // ============================================================
+        function addTodo() {
+            const input = document.getElementById('todoInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const list = document.getElementById('todoList');
+            const div = document.createElement('div');
+            div.className =
+                'todo-item flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50/50 theme-blue:hover:bg-lumina-800/20 transition-all slide-in';
+            div.innerHTML = `
+                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-lumina-500 focus:ring-lumina-400" />
+                <span class="text-sm text-gray-700 theme-blue:text-gray-200">${text}</span>
+                <button onclick="deleteTodo(this)" class="ml-auto text-gray-400 hover:text-red-500 transition-all">✕</button>
+            `;
+            list.appendChild(div);
+            input.value = '';
+            updateTodoCount();
+        }
+
+        function deleteTodo(btn) {
+            const item = btn.closest('.todo-item');
+            item.classList.add('todo-removing');
+            setTimeout(() => {
+                item.remove();
+                updateTodoCount();
+            }, 300);
+        }
+
+        function updateTodoCount() {
+            const count = document.querySelectorAll('.todo-item').length;
+            document.getElementById('todoCount').textContent = count + ' tasks';
+        }
+
+        // ============================================================
+        // 7. ENTER KEY FOR TODO
+        // ============================================================
+        document.getElementById('todoInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') addTodo();
+        });
+
+        // ============================================================
+        // 8. KEYBOARD SHORTCUTS (Senior move)
+        // ============================================================
+        document.addEventListener('keydown', (e) => {
+            // Ctrl + T = Toggle Theme
+            if (e.ctrlKey && e.key === 't') {
+                e.preventDefault();
+                document.getElementById('themeToggle').click();
+            }
+            // Ctrl + N = New Todo
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                document.getElementById('todoInput').focus();
+            }
+            // Escape = Close notifications
+            if (e.key === 'Escape') {
+                notifOpen = false;
+                notifDropdown.classList.add('hidden');
+            }
+            // Ctrl + Shift + N = Open notifications
+            if (e.ctrlKey && e.shiftKey && e.key === 'N') {
+                e.preventDefault();
+                notifBtn.click();
+            }
+        });
+
+        // Show keyboard shortcuts hint in console
+        console.log('🎯 Keyboard Shortcuts:');
+        console.log('  Ctrl + T     → Toggle Theme');
+        console.log('  Ctrl + N     → Focus Todo Input');
+        console.log('  Ctrl+Shift+N → Open Notifications');
+        console.log('  ESC          → Close Notifications');
+
+        console.log('✨ Lumina Dashboard loaded with 10+ animations!');
+    </script>
+
+</body>
+</html>

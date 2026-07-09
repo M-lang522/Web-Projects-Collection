@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M Site — Creative Studio</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --orange: #FF5A1F;
+            --orange-light: #FF8C42;
+            --orange-dark: #E04D10;
+            --white: #FFFFFF;
+            --off-white: #F8F9FA;
+            --dark: #1A1A2E;
+            --gray: #6B7280;
+            --light-gray: #F3F4F6;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.18);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: var(--orange) var(--off-white);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--off-white);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--orange);
+            border-radius: 10px;
+        }
+        body {
+            font-family: 'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: var(--white);
+            color: var(--dark);
+            overflow-x: hidden;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            cursor: none;
+        }
+        a {
+            cursor: none;
+        }
+        button {
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--orange);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 99999;
+            transition: transform 0.1s ease;
+            mix-blend-mode: difference;
+        }
+        .cursor-ring {
+            width: 36px;
+            height: 36px;
+            border: 2px solid var(--orange);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 99998;
+            transition: transform 0.2s ease, width 0.3s ease, height 0.3s ease,
+                border-color 0.3s ease;
+            mix-blend-mode: difference;
+        }
+        .cursor-ring.hover {
+            width: 56px;
+            height: 56px;
+            border-color: var(--orange-light);
+            background: rgba(255, 90, 31, 0.1);
+        }
+
+        /* Navigation */
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all var(--transition);
+        }
+        .nav-glass.scrolled {
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: var(--shadow-md);
+        }
+        .nav-link {
+            position: relative;
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
+            color: var(--dark);
+            transition: color var(--transition);
+            text-decoration: none;
+            padding: 6px 0;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--orange);
+            transition: width var(--transition);
+            border-radius: 2px;
+        }
+        .nav-link:hover {
+            color: var(--orange);
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        #hero-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+        }
+        .hero-title {
+            font-size: clamp(3.5rem, 8vw, 8rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            background: linear-gradient(135deg, #1A1A2E 0%, #3D3D5C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-title .accent {
+            background: linear-gradient(135deg, var(--orange) 0%, var(--orange-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition);
+        }
+        .glass-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+            border-color: rgba(255, 90, 31, 0.3);
+        }
+
+        /* Orange Button */
+        .btn-orange {
+            background: var(--orange);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+            transition: all var(--transition);
+            box-shadow: 0 8px 30px rgba(255, 90, 31, 0.3);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-orange:hover {
+            background: var(--orange-dark);
+            box-shadow: 0 12px 40px rgba(255, 90, 31, 0.45);
+            transform: translateY(-2px);
+        }
+        .btn-orange::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-orange:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--dark);
+            border: 2px solid var(--dark);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+            transition: all var(--transition);
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-outline:hover {
+            border-color: var(--orange);
+            color: var(--orange);
+            box-shadow: 0 8px 30px rgba(255, 90, 31, 0.15);
+        }
+
+        /* Section Styles */
+        .section-tag {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(255, 90, 31, 0.1);
+            color: var(--orange);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+        }
+
+        /* Work Card */
+        .work-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition);
+            cursor: pointer;
+        }
+        .work-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-6px);
+        }
+        .work-card:hover .work-card-img {
+            transform: scale(1.06);
+        }
+        .work-card-img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+        }
+        .work-card-tag {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: var(--orange);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        /* Marquee */
+        .marquee-wrap {
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 20px 0;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 30s linear infinite;
+        }
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* 3D Card Flip */
+        .card-3d-wrap {
+            perspective: 1000px;
+        }
+        .card-3d {
+            transition: transform 0.6s ease;
+            transform-style: preserve-3d;
+            position: relative;
+            min-height: 320px;
+        }
+        .card-3d-wrap:hover .card-3d {
+            transform: rotateY(180deg);
+        }
+        .card-3d-front,
+        .card-3d-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .card-3d-front {
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+            border: 1px solid #eee;
+        }
+        .card-3d-back {
+            background: var(--orange);
+            color: white;
+            transform: rotateY(180deg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Number counter */
+        .stat-number {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: var(--orange);
+            line-height: 1;
+        }
+
+        /* FAQ Accordion */
+        .faq-item {
+            border-bottom: 1px solid #e5e5e5;
+            padding: 20px 0;
+            cursor: pointer;
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+        }
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            padding-top: 12px;
+        }
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+            color: var(--orange);
+        }
+        .faq-icon {
+            transition: all var(--transition);
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        /* Loading screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .loader-ring {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #eee;
+            border-top-color: var(--orange);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Particle BG */
+        .particle-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--orange);
+            opacity: 0.3;
+            animation: floatUp linear infinite;
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.4;
+            }
+            90% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                cursor: auto;
+            }
+            .cursor-dot,
+            .cursor-ring {
+                display: none;
+            }
+            a,
+            button {
+                cursor: pointer;
+            }
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            .nav-desktop {
+                display: none;
+            }
+            .nav-mobile {
+                display: flex;
+            }
+        }
+        @media (min-width: 769px) {
+            .nav-mobile {
+                display: none;
+            }
+        }
+
+        /* Mobile nav */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 380px;
+            height: 100vh;
+            background: var(--white);
+            z-index: 99990;
+            transition: right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+            padding: 80px 32px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .mobile-menu.open {
+            right: 0;
+        }
+        .mobile-menu a {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+            text-decoration: none;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            transition: color var(--transition);
+        }
+        .mobile-menu a:hover {
+            color: var(--orange);
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99980;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+        .overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 3D badge */
+        .badge-3d {
+            display: inline-block;
+            padding: 10px 22px;
+            background: var(--white);
+            border-radius: 50px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            transform: perspective(600px) rotateX(3deg) rotateY(-3deg);
+            transition: all var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .badge-3d:hover {
+            transform: perspective(600px) rotateX(0) rotateY(0);
+            box-shadow: 0 12px 35px rgba(255, 90, 31, 0.25);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div style="text-align:center;">
+            <div class="loader-ring" style="margin:0 auto 20px;"></div>
+            <p style="font-weight:700;color:var(--orange);letter-spacing:0.05em;font-size:1rem;">M SITE</p>
+        </div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <button id="closeMenu"
+        style="position:absolute;top:20px;right:20px;background:none;border:none;font-size:2rem;color:var(--dark);cursor:pointer;">&times;</button>
+        <a href="#hero" class="mobile-nav-link">Home</a>
+        <a href="#about" class="mobile-nav-link">About</a>
+        <a href="#work" class="mobile-nav-link">Work</a>
+        <a href="#services" class="mobile-nav-link">Services</a>
+        <a href="#process" class="mobile-nav-link">Process</a>
+        <a href="#tech" class="mobile-nav-link">Tech</a>
+        <a href="#team" class="mobile-nav-link">Team</a>
+        <a href="#clients" class="mobile-nav-link">Clients</a>
+        <a href="#testimonials" class="mobile-nav-link">Testimonials</a>
+        <a href="#insights" class="mobile-nav-link">Insights</a>
+        <a href="#studio" class="mobile-nav-link">Studio</a>
+        <a href="#careers" class="mobile-nav-link">Careers</a>
+        <a href="#faq" class="mobile-nav-link">FAQ</a>
+        <a href="#contact" class="mobile-nav-link">Contact</a>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-glass fixed top-0 left-0 w-full z-[9990] py-4 px-6 md:px-10 flex items-center justify-between"
+    id="navbar">
+    <a href="#hero" style="text-decoration:none;">
+        <span style="font-weight:900;font-size:1.5rem;letter-spacing:-0.02em;color:var(--dark);">
+            M<span style="color:var(--orange);">.</span>Site
+        </span>
+    </a>
+    <div class="nav-desktop flex items-center gap-8">
+        <a href="#hero" class="nav-link">Home</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#work" class="nav-link">Work</a>
+        <a href="#services" class="nav-link">Services</a>
+        <a href="#process" class="nav-link">Process</a>
+        <a href="#tech" class="nav-link">Tech</a>
+        <a href="#team" class="nav-link">Team</a>
+        <a href="#contact" class="nav-link">Contact</a>
+        <a href="#contact" class="btn-orange" style="padding:10px 24px;font-size:0.85rem;">Start Project</a>
+    </div>
+    <button id="hamburger" class="nav-mobile"
+    style="background:none;border:none;font-size:1.8rem;color:var(--dark);cursor:pointer;">
+    &#9776;
+</button>
+</nav>
+
+<!-- Hero Section -->
+<section id="hero"
+style="min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding-top:80px;">
+<canvas id="heroCanvas"
+style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+<div class="particle-bg" id="particleBg"></div>
+<div class="hero-content text-center px-4 max-w-4xl mx-auto">
+    <div class="badge-3d mb-6">✦ Creative Digital Studio ✦</div>
+    <h1 class="hero-title mb-6">
+        We Craft<br><span class="accent">Digital Magic</span>
+    </h1>
+    <p style="font-size:1.15rem;color:var(--gray);max-width:550px;margin:0 auto 32px;line-height:1.7;">
+        A boundary-pushing creative studio specializing in immersive 3D experiences,
+        brand innovation, and next-generation web design.
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+        <a href="#work" class="btn-orange">Explore Our Work</a>
+        <a href="#about" class="btn-outline">Learn More</a>
+    </div>
+    <div style="margin-top:60px;animation:bounceDown 2s infinite;">
+        <span style="font-size:2rem;color:var(--orange);">&#8595;</span>
+    </div>
+</div>
+</section>
+
+<!-- About Section -->
+<section id="about" style="padding:100px 20px;position:relative;z-index:1;background:var(--white);">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="reveal">
+                <span class="section-tag">About Us</span>
+                <h2 class="section-title mb-6">A new breed of<br>creative studio</h2>
+                <p style="color:var(--gray);font-size:1.05rem;line-height:1.8;margin-bottom:20px;">
+                    Founded in 2018, M Site has grown from a two-person passion project into a
+                    globally recognized creative powerhouse. We blend art, technology, and
+                    storytelling to craft experiences that captivate and convert.
+                </p>
+                <p style="color:var(--gray);font-size:1.05rem;line-height:1.8;margin-bottom:24px;">
+                    Our team of 40+ designers, developers, and strategists work at the
+                    intersection of creativity and code — pushing boundaries with every pixel.
+                </p>
+                <div class="flex gap-8 flex-wrap">
+                    <div><span class="stat-number">40+</span><br><span style="color:var(--gray);">Team Members</span>
+                    </div>
+                    <div><span class="stat-number">200+</span><br><span style="color:var(--gray);">Projects
+                    Delivered</span></div>
+                    <div><span class="stat-number">15</span><br><span
+                    style="color:var(--gray);">Awards</span></div>
+                </div>
+            </div>
+            <div class="reveal card-3d-wrap" style="min-height:380px;">
+                <div class="card-3d">
+                    <div class="card-3d-front">
+                        <div
+                        style="width:100px;height:100px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+                        <span style="font-size:3rem;">⚡</span>
+                    </div>
+                    <h3 style="font-weight:700;font-size:1.3rem;">Innovation First</h3>
+                    <p style="color:var(--gray);font-size:0.9rem;">Hover to flip</p>
+                </div>
+                <div class="card-3d-back">
+                    <h3 style="font-weight:700;font-size:1.3rem;margin-bottom:8px;">Our Philosophy</h3>
+                    <p style="font-size:0.95rem;opacity:0.9;">We believe every brand deserves a
+                        digital presence that's as unique as their vision. No templates, no
+                        shortcuts — just pure creative excellence.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- Work Section -->
+<section id="work" style="padding:100px 20px;position:relative;z-index:1;background:var(--off-white);">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="section-tag">Portfolio</span>
+            <h2 class="section-title">Selected Works</h2>
+            <p style="color:var(--gray);max-width:500px;margin:12px auto 0;">A curated selection of projects
+            we're proud to share.</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="work-card reveal">
+                <span class="work-card-tag">3D Experience</span>
+                <div class="work-card-img"
+                style="background:linear-gradient(135deg,#FF5A1F20,#FF8C4240);display:flex;align-items:center;justify-content:center;">
+                <span style="font-size:4rem;">🌐</span>
+            </div>
+            <div style="padding:20px;">
+                <h3 style="font-weight:700;font-size:1.1rem;">Nexus Brand Hub</h3>
+                <p style="color:var(--gray);font-size:0.85rem;">Immersive 3D brand experience</p>
+            </div>
+        </div>
+        <div class="work-card reveal">
+            <span class="work-card-tag">WebGL</span>
+            <div class="work-card-img"
+            style="background:linear-gradient(135deg,#FF8C4230,#FF5A1F10);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:4rem;">💎</span>
+        </div>
+        <div style="padding:20px;">
+            <h3 style="font-weight:700;font-size:1.1rem;">Crystal Dashboard</h3>
+            <p style="color:var(--gray);font-size:0.85rem;">Real-time data visualization</p>
+        </div>
+    </div>
+    <div class="work-card reveal">
+        <span class="work-card-tag">Interactive</span>
+        <div class="work-card-img"
+        style="background:linear-gradient(135deg,#FF5A1F15,#FF8C4235);display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:4rem;">🚀</span>
+    </div>
+    <div style="padding:20px;">
+        <h3 style="font-weight:700;font-size:1.1rem;">LaunchPad Platform</h3>
+        <p style="color:var(--gray);font-size:0.85rem;">Startup ecosystem portal</p>
+    </div>
+</div>
+<div class="work-card reveal">
+    <span class="work-card-tag">Motion</span>
+    <div class="work-card-img"
+    style="background:linear-gradient(135deg,#FF8C4220,#FF5A1F30);display:flex;align-items:center;justify-content:center;">
+    <span style="font-size:4rem;">🎬</span>
+</div>
+<div style="padding:20px;">
+    <h3 style="font-weight:700;font-size:1.1rem;">Kinetic Type</h3>
+    <p style="color:var(--gray);font-size:0.85rem;">Animated typography system</p>
+</div>
+</div>
+<div class="work-card reveal">
+    <span class="work-card-tag">3D Configurator</span>
+    <div class="work-card-img"
+    style="background:linear-gradient(135deg,#FF5A1F25,#FF8C4215);display:flex;align-items:center;justify-content:center;">
+    <span style="font-size:4rem;">🏗️</span>
+</div>
+<div style="padding:20px;">
+    <h3 style="font-weight:700;font-size:1.1rem;">ArchViz Pro</h3>
+    <p style="color:var(--gray);font-size:0.85rem;">Real-time architectural rendering</p>
+</div>
+</div>
+<div class="work-card reveal">
+    <span class="work-card-tag">E-commerce</span>
+    <div class="work-card-img"
+    style="background:linear-gradient(135deg,#FF8C4235,#FF5A1F20);display:flex;align-items:center;justify-content:center;">
+    <span style="font-size:4rem;">🛍️</span>
+</div>
+<div style="padding:20px;">
+    <h3 style="font-weight:700;font-size:1.1rem;">ShopFlow 3D</h3>
+    <p style="color:var(--gray);font-size:0.85rem;">Immersive shopping experience</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Services Section -->
+<section id="services" style="padding:100px 20px;position:relative;z-index:1;background:var(--white);">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="section-tag">Services</span>
+            <h2 class="section-title">What We Do</h2>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="glass-card p-8 text-center reveal">
+                <span style="font-size:3rem;">🎨</span>
+                <h3 style="font-weight:700;margin:12px 0;">3D Design</h3>
+                <p style="color:var(--gray);font-size:0.85rem;">Stunning 3D visuals & animations</p>
+            </div>
+            <div class="glass-card p-8 text-center reveal">
+                <span style="font-size:3rem;">💻</span>
+                <h3 style="font-weight:700;margin:12px 0;">Web Dev</h3>
+                <p style="color:var(--gray);font-size:0.85rem;">Full-stack modern applications</p>
+            </div>
+            <div class="glass-card p-8 text-center reveal">
+                <span style="font-size:3rem;">📱</span>
+                <h3 style="font-weight:700;margin:12px 0;">Mobile Apps</h3>
+                <p style="color:var(--gray);font-size:0.85rem;">iOS & Android excellence</p>
+            </div>
+            <div class="glass-card p-8 text-center reveal">
+                <span style="font-size:3rem;">🚀</span>
+                <h3 style="font-weight:700;margin:12px 0;">Strategy</h3>
+                <p style="color:var(--gray);font-size:0.85rem;">Brand & growth consulting</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Process Section -->
+<section id="process" style="padding:100px 20px;position:relative;z-index:1;background:var(--off-white);">
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="section-tag">Process</span>
+            <h2 class="section-title">How We Work</h2>
+        </div>
+        <div class="space-y-6">
+            <div class="glass-card p-6 flex gap-4 items-center reveal">
+                <span
+                style="font-size:2.5rem;min-width:60px;text-align:center;color:var(--orange);font-weight:900;">01</span>
+                <div>
+                    <h3 style="font-weight:700;">Discovery & Research</h3>
+                    <p style="color:var(--gray);font-size:0.9rem;">Deep dive into your brand, audience &
+                    goals.</p>
+                </div>
+            </div>
+            <div class="glass-card p-6 flex gap-4 items-center reveal">
+                <span
+                style="font-size:2.5rem;min-width:60px;text-align:center;color:var(--orange);font-weight:900;">02</span>
+                <div>
+                    <h3 style="font-weight:700;">Concept & Design</h3>
+                    <p style="color:var(--gray);font-size:0.9rem;">Wireframes, prototypes & visual
+                    direction.</p>
+                </div>
+            </div>
+            <div class="glass-card p-6 flex gap-4 items-center reveal">
+                <span
+                style="font-size:2.5rem;min-width:60px;text-align:center;color:var(--orange);font-weight:900;">03</span>
+                <div>
+                    <h3 style="font-weight:700;">Development</h3>
+                    <p style="color:var(--gray);font-size:0.9rem;">Clean code, smooth animations, robust
+                    builds.</p>
+                </div>
+            </div>
+            <div class="glass-card p-6 flex gap-4 items-center reveal">
+                <span
+                style="font-size:2.5rem;min-width:60px;text-align:center;color:var(--orange);font-weight:900;">04</span>
+                <div>
+                    <h3 style="font-weight:700;">Launch & Iterate</h3>
+                    <p style="color:var(--gray);font-size:0.9rem;">Deploy, monitor, optimize, scale.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tech Stack -->
+<section id="tech" style="padding:100px 20px;position:relative;z-index:1;background:var(--white);">
+    <div class="max-w-6xl mx-auto text-center">
+        <span class="section-tag reveal">Technology</span>
+        <h2 class="section-title mb-12 reveal">Our Stack</h2>
+        <div class="marquee-wrap reveal">
+            <div class="marquee-content">
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--dark);">React</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--orange);">•</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--dark);">Three.js</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--orange);">•</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--dark);">WebGL</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--orange);">•</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--dark);">Next.js</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--orange);">•</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--dark);">Node.js</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--orange);">•</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--dark);">React Three.js</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--orange);">•</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--dark);">Framer Motion</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--orange);">•</span>
+                <span style="font-size:2rem;font-weight:800;margin:0 24px;color:var(--dark);">GSAP</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section id="team" style="padding:100px 20px;position:relative;z-index:1;background:var(--off-white);">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="section-tag">Team</span>
+            <h2 class="section-title">Meet the Crew</h2>
+        </div>
+        <div class="grid md:grid-cols-4 gap-6">
+            <div class="glass-card p-6 text-center reveal">
+                <div
+                style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#FF5A1F,#FF8C42);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;">
+                AK</div>
+                <h3 style="font-weight:700;">Alex Kim</h3>
+                <p style="color:var(--gray);font-size:0.8rem;">Creative Director</p>
+            </div>
+            <div class="glass-card p-6 text-center reveal">
+                <div
+                style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#FF8C42,#FF5A1F);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;">
+                MR</div>
+                <h3 style="font-weight:700;">Maya Reyes</h3>
+                <p style="color:var(--gray);font-size:0.8rem;">Lead Developer</p>
+            </div>
+            <div class="glass-card p-6 text-center reveal">
+                <div
+                style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#FF5A1F,#FF8C42);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;">
+                JT</div>
+                <h3 style="font-weight:700;">James Tan</h3>
+                <p style="color:var(--gray);font-size:0.8rem;">3D Artist</p>
+            </div>
+            <div class="glass-card p-6 text-center reveal">
+                <div
+                style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#FF8C42,#FF5A1F);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;">
+                SL</div>
+                <h3 style="font-weight:700;">Sara Liu</h3>
+                <p style="color:var(--gray);font-size:0.8rem;">UX Strategist</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Clients Section -->
+<section id="clients" style="padding:100px 20px;position:relative;z-index:1;background:var(--white);">
+    <div class="max-w-6xl mx-auto text-center">
+        <span class="section-tag reveal">Clients</span>
+        <h2 class="section-title mb-12 reveal">Trusted By</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+            <div class="reveal glass-card p-8"><span style="font-weight:800;font-size:1.3rem;">TechCorp</span></div>
+            <div class="reveal glass-card p-8"><span style="font-weight:800;font-size:1.3rem;">NovaBrand</span></div>
+            <div class="reveal glass-card p-8"><span style="font-weight:800;font-size:1.3rem;">SkyLine</span></div>
+            <div class="reveal glass-card p-8"><span style="font-weight:800;font-size:1.3rem;">PixelLab</span></div>
+            <div class="reveal glass-card p-8"><span style="font-weight:800;font-size:1.3rem;">FlowState</span></div>
+            <div class="reveal glass-card p-8"><span style="font-weight:800;font-size:1.3rem;">Zenith</span></div>
+            <div class="reveal glass-card p-8"><span style="font-weight:800;font-size:1.3rem;">OrbitX</span></div>
+            <div class="reveal glass-card p-8"><span style="font-weight:800;font-size:1.3rem;">Aether</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section id="testimonials" style="padding:100px 20px;position:relative;z-index:1;background:var(--off-white);">
+    <div class="max-w-4xl mx-auto text-center">
+        <span class="section-tag reveal">Testimonials</span>
+        <h2 class="section-title mb-12 reveal">What They Say</h2>
+        <div class="glass-card p-10 reveal">
+            <p style="font-size:1.3rem;font-style:italic;color:var(--dark);line-height:1.8;">
+                "M Site transformed our digital presence completely. The 3D elements they built for our
+                product launch drove a 300% increase in engagement. Truly world-class work."
+            </p>
+            <div style="margin-top:20px;">
+                <strong>— Priya Sharma</strong><br>
+                <span style="color:var(--gray);">CEO, TechCorp</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Insights / Blog -->
+<section id="insights" style="padding:100px 20px;position:relative;z-index:1;background:var(--white);">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="section-tag">Insights</span>
+            <h2 class="section-title">Latest Thinking</h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="glass-card p-6 reveal">
+                <span style="color:var(--orange);font-weight:600;font-size:0.8rem;">ARTICLE</span>
+                <h3 style="font-weight:700;margin:8px 0;">The Future of 3D on the Web</h3>
+                <p style="color:var(--gray);font-size:0.85rem;">How WebGPU is changing everything.</p>
+            </div>
+            <div class="glass-card p-6 reveal">
+                <span style="color:var(--orange);font-weight:600;font-size:0.8rem;">CASE STUDY</span>
+                <h3 style="font-weight:700;margin:8px 0;">Rebuilding a Brand in 3D</h3>
+                <p style="color:var(--gray);font-size:0.85rem;">Behind the scenes of our latest project.</p>
+            </div>
+            <div class="glass-card p-6 reveal">
+                <span style="color:var(--orange);font-weight:600;font-size:0.8rem;">GUIDE</span>
+                <h3 style="font-weight:700;margin:8px 0;">Optimizing 3D Performance</h3>
+                <p style="color:var(--gray);font-size:0.85rem;">Tips for smooth 60fps experiences.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Studio Section -->
+<section id="studio" style="padding:100px 20px;position:relative;z-index:1;background:var(--off-white);">
+    <div class="max-w-6xl mx-auto text-center">
+        <span class="section-tag reveal">Studio</span>
+        <h2 class="section-title mb-8 reveal">Virtual Tour</h2>
+        <div class="glass-card p-4 reveal" style="min-height:350px;display:flex;align-items:center;justify-content:center;">
+            <div id="studio3D" style="width:100%;height:350px;border-radius:var(--radius-md);overflow:hidden;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Careers -->
+<section id="careers" style="padding:100px 20px;position:relative;z-index:1;background:var(--white);">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="section-tag">Careers</span>
+            <h2 class="section-title">Join the Team</h2>
+        </div>
+        <div class="space-y-4">
+            <div class="glass-card p-6 flex justify-between items-center reveal">
+                <div><strong>Senior 3D Developer</strong><br><span style="color:var(--gray);font-size:0.85rem;">Remote
+                · Full-time</span></div>
+                <a href="#" class="btn-orange" style="padding:8px 20px;font-size:0.8rem;">Apply</a>
+            </div>
+            <div class="glass-card p-6 flex justify-between items-center reveal">
+                <div><strong>Creative Producer</strong><br><span style="color:var(--gray);font-size:0.85rem;">NYC · Hybrid</span>
+                </div>
+                <a href="#" class="btn-orange" style="padding:8px 20px;font-size:0.8rem;">Apply</a>
+            </div>
+            <div class="glass-card p-6 flex justify-between items-center reveal">
+                <div><strong>UX Engineer</strong><br><span style="color:var(--gray);font-size:0.85rem;">London ·
+                On-site</span></div>
+                <a href="#" class="btn-orange" style="padding:8px 20px;font-size:0.8rem;">Apply</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="padding:100px 20px;position:relative;z-index:1;background:var(--off-white);">
+    <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="section-tag">FAQ</span>
+            <h2 class="section-title">Got Questions?</h2>
+        </div>
+        <div class="faq-item reveal">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:700;">What's your typical project timeline?</span>
+                <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer"><p style="color:var(--gray);">Most projects range from 4-12 weeks depending on
+            scope and complexity.</p></div>
+        </div>
+        <div class="faq-item reveal">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:700;">Do you offer ongoing support?</span>
+                <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer"><p style="color:var(--gray);">Absolutely. We provide 24/7 support packages
+            tailored to your needs.</p></div>
+        </div>
+        <div class="faq-item reveal">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:700;">What technologies do you specialize in?</span>
+                <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer"><p style="color:var(--gray);">React, Three.js, WebGL, Next.js, Node.js, and
+            cutting-edge 3D frameworks.</p></div>
+        </div>
+        <div class="faq-item reveal">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:700;">Can you work with existing codebases?</span>
+                <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer"><p style="color:var(--gray);">Yes, we're experienced in integrating with
+            legacy systems and existing stacks.</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" style="padding:100px 20px;position:relative;z-index:1;background:var(--white);">
+    <div class="max-w-2xl mx-auto text-center">
+        <span class="section-tag reveal">Contact</span>
+        <h2 class="section-title mb-8 reveal">Let's Build Something</h2>
+        <form class="space-y-5 reveal" onsubmit="event.preventDefault();alert('Message sent! We\'ll be in touch soon.');">
+            <input type="text" placeholder="Your Name"
+            style="width:100%;padding:14px 20px;border-radius:50px;border:2px solid #e5e5e5;font-size:1rem;outline:none;transition:border-color 0.3s;"
+            onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='#e5e5e5'">
+            <input type="email" placeholder="Email Address"
+            style="width:100%;padding:14px 20px;border-radius:50px;border:2px solid #e5e5e5;font-size:1rem;outline:none;transition:border-color 0.3s;"
+            onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='#e5e5e5'">
+            <textarea placeholder="Tell us about your project..." rows="4"
+            style="width:100%;padding:14px 20px;border-radius:24px;border:2px solid #e5e5e5;font-size:1rem;outline:none;resize:none;transition:border-color 0.3s;"
+        onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='#e5e5e5'"></textarea>
+        <button type="submit" class="btn-orange" style="width:100%;">Send Message</button>
+    </form>
+</div>
+</section>
+
+<!-- Footer -->
+<footer style="padding:60px 20px;background:var(--dark);color:white;position:relative;z-index:1;">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-8">
+        <div>
+            <h3 style="font-weight:900;font-size:1.4rem;">M<span style="color:var(--orange);">.</span>Site</h3>
+            <p style="color:#aaa;font-size:0.85rem;margin-top:8px;">Creative Digital Studio © 2024</p>
+        </div>
+        <div>
+            <h4 style="font-weight:700;margin-bottom:12px;">Pages</h4>
+            <a href="#hero" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">Home</a>
+            <a href="#about" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">About</a>
+            <a href="#work" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">Work</a>
+            <a href="#services" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">Services</a>
+        </div>
+        <div>
+            <h4 style="font-weight:700;margin-bottom:12px;">More</h4>
+            <a href="#process" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">Process</a>
+            <a href="#team" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">Team</a>
+            <a href="#careers" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">Careers</a>
+            <a href="#faq" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">FAQ</a>
+        </div>
+        <div>
+            <h4 style="font-weight:700;margin-bottom:12px;">Connect</h4>
+            <a href="#" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">Twitter</a>
+            <a href="#" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">Instagram</a>
+            <a href="#" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">LinkedIn</a>
+            <a href="#" style="color:#aaa;text-decoration:none;display:block;margin:4px 0;">Dribbble</a>
+        </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;color:#555;font-size:0.8rem;">
+        Built with ❤️ using Three.js & React · M Site 2024
+    </div>
+</footer>
+
+<!-- Three.js Scripts -->
+<script type="module">
+    import * as THREE from 'three';
+
+    // ============ HERO 3D CANVAS ============
+    const heroCanvas = document.getElementById('heroCanvas');
+    const heroScene = new THREE.Scene();
+    const heroCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+    heroCamera.position.z = 5;
+
+    const heroRenderer = new THREE.WebGLRenderer({ canvas: heroCanvas, alpha: true, antialias: true });
+    heroRenderer.setSize(window.innerWidth, window.innerHeight);
+    heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    heroRenderer.setClearColor(0x000000, 0);
+
+    // Main torus knot
+    const knotGeo = new THREE.TorusKnotGeometry(0.9, 0.25, 200, 32);
+    const knotMat = new THREE.MeshStandardMaterial({
+        color: 0xFF5A1F,
+        roughness: 0.2,
+        metalness: 0.1,
+        emissive: 0xFF5A1F,
+        emissiveIntensity: 0.15,
+    });
+    const knot = new THREE.Mesh(knotGeo, knotMat);
+    heroScene.add(knot);
+
+    // Wireframe overlay
+    const wireGeo = new THREE.TorusKnotGeometry(0.92, 0.26, 100, 20);
+    const wireMat = new THREE.MeshBasicMaterial({ color: 0xFF8C42, wireframe: true, transparent: true, opacity: 0.25 });
+    const wireKnot = new THREE.Mesh(wireGeo, wireMat);
+    heroScene.add(wireKnot);
+
+    // Orbiting ring
+    const ringGeo = new THREE.TorusGeometry(1.4, 0.03, 16, 100);
+    const ringMat = new THREE.MeshStandardMaterial({ color: 0xFF8C42, roughness: 0.3, metalness: 0.5, emissive: 0xFF5A1F,
+        emissiveIntensity: 0.3 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 3;
+    ring.rotation.y = Math.PI / 4;
+    heroScene.add(ring);
+
+    // Second ring
+    const ring2Geo = new THREE.TorusGeometry(1.2, 0.02, 16, 80);
+    const ring2Mat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.2, metalness: 0.6, emissive: 0xFFFFFF,
+        emissiveIntensity: 0.2 });
+    const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+    ring2.rotation.x = -Math.PI / 4;
+    ring2.rotation.y = -Math.PI / 3;
+    heroScene.add(ring2);
+
+    // Particles
+    const particlesGeo = new THREE.BufferGeometry();
+    const particlesCount = 600;
+    const posArray = new Float32Array(particlesCount * 3);
+    for (let i = 0; i < particlesCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 8;
+    }
+    particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMat = new THREE.PointsMaterial({
+        size: 0.015,
+        color: 0xFF8C42,
+        transparent: true,
+        opacity: 0.7,
+        blending: THREE.AdditiveBlending,
+    });
+    const particles = new THREE.Points(particlesGeo, particlesMat);
+    heroScene.add(particles);
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    heroScene.add(ambientLight);
+    const pointLight1 = new THREE.PointLight(0xFF5A1F, 30, 15);
+    pointLight1.position.set(3, 2, 4);
+    heroScene.add(pointLight1);
+    const pointLight2 = new THREE.PointLight(0xFFFFFF, 20, 10);
+    pointLight2.position.set(-3, -1, 3);
+    heroScene.add(pointLight2);
+    const pointLight3 = new THREE.PointLight(0xFF8C42, 15, 8);
+    pointLight3.position.set(0, -2, -2);
+    heroScene.add(pointLight3);
+
+    // Mouse tracking
+    let mouseX = 0,
+        mouseY = 0;
+    let targetMouseX = 0,
+        targetMouseY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        targetMouseX = (e.clientX / window.innerWidth) * 2 - 1;
+        targetMouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    // Scroll offset for hero
+    let scrollOffset = 0;
+    window.addEventListener('scroll', () => {
+        scrollOffset = window.scrollY;
+    });
+
+    function animateHero() {
+        requestAnimationFrame(animateHero);
+
+        mouseX += (targetMouseX - mouseX) * 0.05;
+        mouseY += (targetMouseY - mouseY) * 0.05;
+
+        const time = Date.now() * 0.001;
+        const sc = Math.max(0, 1 - scrollOffset / 700);
+
+        knot.rotation.x += 0.004;
+        knot.rotation.y += 0.006;
+        knot.scale.setScalar(sc);
+        knot.position.y = -scrollOffset * 0.3;
+        knot.material.opacity = sc;
+
+        wireKnot.rotation.x = knot.rotation.x;
+        wireKnot.rotation.y = knot.rotation.y;
+        wireKnot.scale.setScalar(sc);
+        wireKnot.position.y = knot.position.y;
+
+        ring.rotation.z += 0.003;
+        ring.rotation.x += 0.002;
+        ring.scale.setScalar(sc);
+        ring.position.y = knot.position.y;
+
+        ring2.rotation.z -= 0.004;
+        ring2.rotation.y += 0.003;
+        ring2.scale.setScalar(sc);
+        ring2.position.y = knot.position.y;
+
+        particles.rotation.y += 0.001;
+        particles.rotation.x += 0.0005;
+        particles.position.y = knot.position.y;
+        particles.material.opacity = sc * 0.7;
+
+        heroCamera.position.x += (mouseX * 1.2 - heroCamera.position.x) * 0.03;
+        heroCamera.position.y += (mouseY * 0.8 - heroCamera.position.y) * 0.03;
+        heroCamera.lookAt(0, -scrollOffset * 0.3, 0);
+
+        heroRenderer.render(heroScene, heroCamera);
+    }
+    animateHero();
+
+    window.addEventListener('resize', () => {
+        heroCamera.aspect = window.innerWidth / window.innerHeight;
+        heroCamera.updateProjectionMatrix();
+        heroRenderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // ============ STUDIO 3D SCENE ============
+    const studioContainer = document.getElementById('studio3D');
+    if (studioContainer) {
+        const studioScene = new THREE.Scene();
+        const studioCamera = new THREE.PerspectiveCamera(50, studioContainer.clientWidth / studioContainer.clientHeight,
+            0.1, 50);
+        studioCamera.position.set(3, 2, 6);
+        studioCamera.lookAt(0, 0, 0);
+
+        const studioRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        studioRenderer.setSize(studioContainer.clientWidth, studioContainer.clientHeight);
+        studioRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        studioRenderer.setClearColor(0xf8f9fa, 1);
+        studioContainer.appendChild(studioRenderer.domElement);
+
+        // Floor
+        const floorGeo = new THREE.PlaneGeometry(8, 8);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -1.5;
+        studioScene.add(floor);
+
+        // Abstract shapes
+        const shapes = [];
+        for (let i = 0; i < 8; i++) {
+            const geo = i % 3 === 0 ? new THREE.BoxGeometry(0.4, 0.4, 0.4) :
+                i % 3 === 1 ? new THREE.SphereGeometry(0.25, 16, 16) :
+                new THREE.CylinderGeometry(0.2, 0.2, 0.5, 16);
+            const mat = new THREE.MeshStandardMaterial({
+                color: i % 2 === 0 ? 0xFF5A1F : 0xFF8C42,
+                roughness: 0.2,
+                metalness: 0.3,
+            });
+            const shape = new THREE.Mesh(geo, mat);
+            shape.position.set((Math.random() - 0.5) * 5, (Math.random() - 0.5) * 2.5, (Math.random() - 0.5) * 3);
+            shape.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+            shape.userData = {
+                rotSpeed: { x: (Math.random() - 0.5) * 0.02, y: (Math.random() - 0.5) * 0.02 },
+                floatSpeed: Math.random() * 0.01 + 0.005,
+                floatAmp: Math.random() * 0.5 + 0.3,
+                baseY: shape.position.y,
+            };
+            studioScene.add(shape);
+            shapes.push(shape);
+        }
+
+        const studioAmbient = new THREE.AmbientLight(0xffffff, 1.5);
+        studioScene.add(studioAmbient);
+        const studioDir = new THREE.DirectionalLight(0xffffff, 2);
+        studioDir.position.set(5, 8, 5);
+        studioScene.add(studioDir);
+
+        function animateStudio() {
+            requestAnimationFrame(animateStudio);
+            const t = Date.now() * 0.001;
+            shapes.forEach(s => {
+                s.rotation.x += s.userData.rotSpeed.x;
+                s.rotation.y += s.userData.rotSpeed.y;
+                s.position.y = s.userData.baseY + Math.sin(t * s.userData.floatSpeed * 10) * s.userData
+                    .floatAmp;
+            });
+            studioCamera.position.x = Math.sin(t * 0.3) * 4;
+            studioCamera.position.z = Math.cos(t * 0.3) * 4 + 2;
+            studioCamera.lookAt(0, 0, 0);
+            studioRenderer.render(studioScene, studioCamera);
+        }
+        animateStudio();
+
+        window.addEventListener('resize', () => {
+            if (studioContainer.clientWidth > 0) {
+                studioCamera.aspect = studioContainer.clientWidth / studioContainer.clientHeight;
+                studioCamera.updateProjectionMatrix();
+                studioRenderer.setSize(studioContainer.clientWidth, studioContainer.clientHeight);
+            }
+        });
+    }
+
+    // ============ PARTICLE BACKGROUND ============
+    const particleBg = document.getElementById('particleBg');
+    if (particleBg) {
+        for (let i = 0; i < 40; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.width = (Math.random() * 6 + 2) + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.animationDuration = (Math.random() * 12 + 8) + 's';
+            particle.style.animationDelay = (Math.random() * 10) + 's';
+            particle.style.opacity = Math.random() * 0.3 + 0.1;
+            particleBg.appendChild(particle);
+        }
+    }
+</script>
+
+<!-- Main JavaScript -->
+<script>
+    // ============ LOADING SCREEN ============
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.getElementById('loadingScreen').classList.add('hidden');
+        }, 1200);
+    });
+
+    // ============ CUSTOM CURSOR ============
+    const cursorDot = document.getElementById('cursorDot');
+    const cursorRing = document.getElementById('cursorRing');
+    let cursorX = 0,
+        cursorY = 0;
+    let ringX = 0,
+        ringY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        cursorX = e.clientX;
+        cursorY = e.clientY;
+        cursorDot.style.left = cursorX - 4 + 'px';
+        cursorDot.style.top = cursorY - 4 + 'px';
+    });
+
+    function animateRing() {
+        ringX += (cursorX - ringX) * 0.15;
+        ringY += (cursorY - ringY) * 0.15;
+        cursorRing.style.left = ringX - 18 + 'px';
+        cursorRing.style.top = ringY - 18 + 'px';
+        requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // Hover effect on interactive elements
+    const hoverTargets = document.querySelectorAll(
+        'a, button, .work-card, .glass-card, .faq-item, .card-3d-wrap, input, textarea');
+    hoverTargets.forEach(el => {
+        el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+    });
+
+    // ============ NAVIGATION ============
+    const navbar = document.getElementById('navbar');
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const overlay = document.getElementById('overlay');
+    const closeMenu = document.getElementById('closeMenu');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    hamburger.addEventListener('click', () => {
+        mobileMenu.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    });
+
+    function closeMobileMenu() {
+        mobileMenu.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    closeMenu.addEventListener('click', closeMobileMenu);
+    overlay.addEventListener('click', closeMobileMenu);
+    mobileNavLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+    });
+
+    // ============ FAQ ACCORDION ============
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const wasActive = item.classList.contains('active');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove(
+                'active'));
+            if (!wasActive) {
+                item.classList.add('active');
+            }
+        });
+    });
+
+    // ============ SCROLL REVEAL ============
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // ============ SMOOTH SCROLL FOR ALL ANCHOR LINKS ============
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            const target = document.querySelector(targetId);
+            if (target) {
+                e.preventDefault();
+                const navHeight = navbar.offsetHeight;
+                const targetPosition = target.getBoundingClientRect().top + window.scrollY -
+                    navHeight;
+                window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+            }
+        });
+    });
+
+    console.log('%c🚀 M Site %cLoaded Successfully',
+        'font-size:1.5rem;font-weight:900;color:#FF5A1F;',
+        'font-size:1rem;color:#1A1A2E;');
+    console.log('%c15 Sections · 3D Hero · Interactive Studio · White & Orange Theme',
+        'color:#6B7280;font-style:italic;');
+    console.log('%cBuilt with Three.js · Pure Vanilla JS · No Framework Required',
+        'color:#FF8C42;font-weight:600;');
+</script>
+</body>
+</html>
