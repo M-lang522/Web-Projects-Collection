@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Goldistic — A Premium Lifestyle House</title>
+<meta name="description" content="Goldistic is a premium lifestyle house crafting timeless objects, spaces, and rituals in warm peach and porcelain white." />
+
+<!-- Fonts: Playfair Display (headings) + Inter (body) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ AMBIENT BREATHING BACKGROUND (never stops) ============ -->
+<div class="ambient" aria-hidden="true">
+  <div class="ambient-mesh mesh-a"></div>
+  <div class="ambient-mesh mesh-b"></div>
+  <div class="ambient-mesh mesh-c"></div>
+  <div class="ambient-mesh mesh-d"></div>
+  <div class="ambient-grain"></div>
+</div>
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <a href="#home" class="nav-logo">Goldistic<span class="nav-dot">.</span></a>
+  <nav class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#gallery">Collection</a>
+    <a href="#stats">House</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <a href="#contact" class="nav-cta spring">Reserve</a>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="home">
+  <!-- Floating abstract shape behind the headline -->
+  <div class="hero-shape" aria-hidden="true">
+    <span class="shape-core"></span>
+    <span class="shape-ring"></span>
+    <span class="shape-blob"></span>
+  </div>
+
+  <p class="eyebrow reveal" data-delay="0">Est. 2014 · A House of Warm Luxury</p>
+
+  <h1 class="hero-title">
+    <span class="reveal-line" style="--i:1">The Art of</span>
+    <span class="reveal-line" style="--i:2"><em>Living</em> in</span>
+    <span class="reveal-line" style="--i:3">Warm Light</span>
+  </h1>
+
+  <p class="hero-sub reveal" data-delay="380">
+    Goldistic crafts timeless objects, rituals, and spaces — a quiet kind of luxury
+    finished in porcelain white and the soft glow of peach.
+  </p>
+
+  <div class="hero-cta reveal" data-delay="560">
+    <a href="#gallery" class="btn btn-primary spring">Explore the Collection</a>
+    <a href="#features" class="btn btn-ghost spring">Our Philosophy</a>
+  </div>
+
+  <div class="hero-scroll reveal" data-delay="760">
+    <span>Scroll</span>
+    <span class="scroll-line"></span>
+  </div>
+</section>
+
+<!-- ============ FEATURES GRID ============ -->
+<section class="features" id="features">
+  <div class="section-head">
+    <p class="eyebrow reveal">The Craft</p>
+    <h2 class="section-title reveal" data-delay="120">Four pillars of <em>the house</em></h2>
+  </div>
+
+  <div class="feature-grid">
+    <article class="feature-card reveal" data-delay="0">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 6.9L21.5 9l-5.4 4.4 1.9 6.9L12 16.6 6 20.3l1.9-6.9L2.5 9l7.1-.1z"/></svg>
+      </div>
+      <h3>Considered Objects</h3>
+      <p>Each piece is shaped by hand and finished in small batches — never rushed, always intentional.</p>
+    </article>
+
+    <article class="feature-card reveal" data-delay="120">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.3-9A5.2 5.2 0 0 1 12 6a5.2 5.2 0 0 1 9.3 6c-2.3 4.5-9.3 9-9.3 9z"/></svg>
+      </div>
+      <h3>Warm Materials</h3>
+      <p>Brushed bronze, raw linen, and unglazed clay — textures chosen for how they hold light and time.</p>
+    </article>
+
+    <article class="feature-card reveal" data-delay="240">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+      </div>
+      <h3>Daily Rituals</h3>
+      <p>From morning light to evening pour — small ceremonies that turn the ordinary into the memorable.</p>
+    </article>
+
+    <article class="feature-card reveal" data-delay="360">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+      </div>
+      <h3>A Quiet Home</h3>
+      <p>Spaces composed like still lifes — calm, warm, and arranged for the slow pleasure of return.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ============ GALLERY (with image hover zoom) ============ -->
+<section class="gallery" id="gallery">
+  <div class="section-head">
+    <p class="eyebrow reveal">The Collection</p>
+    <h2 class="section-title reveal" data-delay="120">Made to be <em>lived with</em></h2>
+  </div>
+
+  <div class="gallery-grid">
+    <figure class="gallery-item reveal tilt-left">
+      <div class="gallery-img" style="background-image:url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=900&q=80')"></div>
+      <figcaption>Maison Throw · Clay</figcaption>
+    </figure>
+    <figure class="gallery-item reveal tilt-right" data-delay="100">
+      <div class="gallery-img" style="background-image:url('https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?auto=format&fit=crop&w=900&q=80')"></div>
+      <figcaption>Ceramic Vase · Bisque</figcaption>
+    </figure>
+    <figure class="gallery-item reveal tilt-left" data-delay="200">
+      <div class="gallery-img" style="background-image:url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=900&q=80')"></div>
+      <figcaption>Linen Lounge · Peach</figcaption>
+    </figure>
+    <figure class="gallery-item reveal tilt-right" data-delay="300">
+      <div class="gallery-img" style="background-image:url('https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=900&q=80')"></div>
+      <figcaption>Brass Pour Set</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ STATISTICS / COUNTERS (dark peach) ============ -->
+<section class="stats" id="stats">
+  <div class="stats-glow"></div>
+  <p class="eyebrow eyebrow-light reveal">By the Numbers</p>
+  <h2 class="stats-title reveal" data-delay="120">A decade of <em>quiet craft</em></h2>
+
+  <div class="stats-grid">
+    <div class="stat reveal" data-delay="0">
+      <span class="stat-num" data-count="12" data-suffix="">0</span>
+      <span class="stat-label">Years of craft</span>
+    </div>
+    <div class="stat reveal" data-delay="120">
+      <span class="stat-num" data-count="248" data-suffix="+">0</span>
+      <span class="stat-label">Pieces in collection</span>
+    </div>
+    <div class="stat reveal" data-delay="240">
+      <span class="stat-num" data-count="60" data-suffix="k">0</span>
+      <span class="stat-label">Homes furnished</span>
+    </div>
+    <div class="stat reveal" data-delay="360">
+      <span class="stat-num" data-count="38" data-suffix="">0</span>
+      <span class="stat-label">Cities served</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT / FOOTER ============ -->
+<footer class="footer" id="contact">
+  <div class="footer-top">
+    <div class="footer-brand reveal">
+      <a href="#home" class="footer-logo">Goldistic<span class="nav-dot">.</span></a>
+      <p>A house of warm luxury. Crafted slowly, in porcelain white and the soft glow of peach.</p>
+    </div>
+
+    <div class="footer-col reveal" data-delay="120">
+      <h4>House</h4>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#gallery">Collection</a></li>
+        <li><a href="#stats">By the Numbers</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col reveal" data-delay="240">
+      <h4>Studio</h4>
+      <ul>
+        <li><a href="#">Atelier</a></li>
+        <li><a href="#">Journal</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col reveal" data-delay="360">
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">Pinterest</a></li>
+        <li><a href="#">Newsletter</a></li>
+        <li><a href="#">hello@goldistic.com</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2026 Goldistic. All rights reserved.</span>
+    <span>Porcelain white · Warm peach · Slow craft</span>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
