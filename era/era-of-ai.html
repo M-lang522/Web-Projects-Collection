@@ -1,0 +1,1175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ERA OF AI · Claude Modern</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#FF5500',
+            'accent-bright': '#FF6B0B',
+            'warm-50': '#fafaf9',
+            'warm-100': '#f5f4f1',
+            'warm-200': '#e8e6e1',
+            'warm-300': '#d4d1cb',
+            'warm-600': '#6b6964',
+            'warm-800': '#3d3b36',
+            'warm-900': '#1a1916',
+            'warm-950': '#0a0a08',
+          },
+          fontFamily: {
+            display: ['"Anthropic Serif"', 'Georgia', '"Times New Roman"', 'serif'],
+            body: ['"Anthropic Sans"', 'Arial', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"Anthropic Mono"', 'ui-monospace', '"JetBrains Mono"', 'Menlo', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #fafaf9;
+      --fg: #0a0a08;
+      --muted: #6b6964;
+      --border: #e8e6e1;
+      --accent: #FF5500;
+      --accent-glow: rgba(255, 85, 0, 0.28);
+      --accent-soft: rgba(255, 85, 0, 0.07);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --ease-bounce: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    html.lenis { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    .lenis.lenis-stopped { overflow: hidden; }
+    .lenis.lenis-scrolling iframe { pointer-events: none; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Anthropic Sans', Arial, system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--accent); color: #fff; }
+
+    /* ─── Skip link ──────────────────────────────────────────── */
+    .skip-link {
+      position: fixed; top: 12px; left: 12px; z-index: 200;
+      padding: 10px 18px;
+      background: var(--accent); color: #fff;
+      border-radius: 8px;
+      font-size: 14px; font-weight: 500;
+      text-decoration: none;
+      transform: translateY(-120%);
+      transition: transform 0.15s ease;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    /* ─── Focus-visible global ────────────────────────────────── */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    /* ─── Glassmorphism nav ─────────────────────────────────── */
+    .glass-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      transition: background 0.4s ease, backdrop-filter 0.4s ease;
+    }
+    .glass-nav.scrolled {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .glass-nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .glass-nav .logo {
+      font-family: 'Anthropic Serif', Georgia, serif;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--fg);
+    }
+    .glass-nav nav { display: flex; gap: 32px; align-items: center; }
+    .glass-nav nav a {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .glass-nav nav a:hover { color: var(--fg); }
+    .glass-nav nav a:focus-visible { color: var(--accent); }
+
+    /* ─── Mobile hamburger ────────────────────────────────────── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      z-index: 101;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--fg);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .mobile-nav.open { opacity: 1; pointer-events: auto; }
+    .mobile-nav a {
+      font-size: 24px;
+      font-family: 'Anthropic Serif', Georgia, serif;
+      color: var(--fg);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .mobile-nav a:hover, .mobile-nav a:focus-visible { color: var(--accent); }
+
+    .btn-accent {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 24px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.15s var(--ease-bounce), box-shadow 0.2s ease, background 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      min-height: 44px;
+    }
+    .btn-accent::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .btn-accent:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 30px var(--accent-glow);
+    }
+    .btn-accent:hover::after { opacity: 1; transform: scale(1); }
+    .btn-accent:active { transform: translateY(0) scale(0.98); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 24px;
+      background: rgba(0, 0, 0, 0.03);
+      color: var(--fg);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 44px;
+    }
+    .btn-ghost:hover {
+      background: rgba(0, 0, 0, 0.06);
+      border-color: rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
+    }
+
+    /* ─── Hero section ──────────────────────────────────────── */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 700px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #three-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+    .hero-overlay {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      pointer-events: none;
+    }
+    .hero-overlay button { pointer-events: auto; }
+    .hero-headline {
+      font-family: 'Anthropic Serif', Georgia, serif;
+      font-size: clamp(64px, 10vw, 140px);
+      font-weight: 500;
+      line-height: 0.96;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+      margin: 0 0 24px;
+    }
+    .hero-headline .char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(60px) rotateX(-40deg);
+    }
+    .hero-sub {
+      font-size: clamp(18px, 2vw, 24px);
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 40px;
+      font-weight: 400;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    /* ─── Features grid ─────────────────────────────────────── */
+    #features {
+      position: relative;
+      padding: 120px 0;
+      background: var(--bg);
+    }
+    .features-header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 80px;
+    }
+    .features-header .eyebrow {
+      font-family: 'Anthropic Mono', ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .features-header h2 {
+      font-family: 'Anthropic Serif', Georgia, serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin: 0 0 16px;
+    }
+    .features-header p {
+      font-size: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+    .feature-card {
+      background: linear-gradient(135deg, #ffffff, #fafaf9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      transition: box-shadow 0.4s ease, border-color 0.4s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--accent), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: -1;
+    }
+    .feature-card:hover {
+      border-color: transparent;
+      box-shadow: 0 20px 60px var(--accent-glow), 0 0 0 1px var(--accent);
+    }
+    .feature-card:hover::before { opacity: 0.08; }
+    .feature-card-inner {
+      position: relative;
+      z-index: 1;
+      transform-style: preserve-3d;
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      margin-bottom: 20px;
+      transition: transform 0.3s var(--ease-bounce);
+    }
+    .feature-card:hover .feature-icon { transform: translateZ(20px); }
+    .feature-icon svg { width: 22px; height: 22px; }
+    .feature-card h3 {
+      font-family: 'Anthropic Serif', Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+      transition: transform 0.3s var(--ease-bounce);
+    }
+    .feature-card:hover h3 { transform: translateZ(15px); }
+    .feature-card p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0;
+      transition: transform 0.3s var(--ease-bounce);
+    }
+    .feature-card:hover p { transform: translateZ(10px); }
+
+    /* ─── Showcase / Timeline ────────────────────────────────── */
+    #showcase {
+      position: relative;
+      padding: 120px 0;
+      background: #fafaf9;
+      overflow: hidden;
+    }
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.18;
+      pointer-events: none;
+    }
+    .ambient-orb.orb-1 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent);
+      top: 10%;
+      left: -10%;
+    }
+    .ambient-orb.orb-2 {
+      width: 400px;
+      height: 400px;
+      background: var(--accent);
+      bottom: 20%;
+      right: -5%;
+    }
+
+    .showcase-header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 80px;
+      position: relative;
+      z-index: 1;
+    }
+    .showcase-header .eyebrow {
+      font-family: 'Anthropic Mono', ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .showcase-header h2 {
+      font-family: 'Anthropic Serif', Georgia, serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .timeline {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+    .timeline-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--border) 10%, var(--border) 90%, transparent);
+      transform: translateX(-50%);
+    }
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-bottom: 100px;
+      position: relative;
+    }
+    .timeline-item:nth-child(even) { direction: rtl; }
+    .timeline-item:nth-child(even) .timeline-content { direction: ltr; }
+    .timeline-dot {
+      position: absolute;
+      left: 50%;
+      top: 24px;
+      width: 16px;
+      height: 16px;
+      background: var(--accent);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 20px var(--accent-glow);
+      z-index: 2;
+    }
+    .timeline-visual {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    .timeline-visual::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 20%, var(--accent-soft), transparent 70%);
+    }
+    .chat-bubble-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+    .chat-bubble {
+      background: #f5f4f1;
+      border-radius: 16px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 80%;
+    }
+    .chat-bubble.user { align-self: flex-end; background: var(--accent); color: #fff; }
+    .chat-bubble.bot { align-self: flex-start; }
+    .graph-placeholder {
+      width: 100%;
+      height: 140px;
+      background: linear-gradient(180deg, var(--accent-soft) 0%, transparent 100%);
+      border-radius: 12px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-end;
+      padding: 16px;
+      gap: 8px;
+    }
+    .graph-bar {
+      flex: 1;
+      border-radius: 6px 6px 0 0;
+      background: linear-gradient(180deg, var(--accent) 0%, rgba(255,85,0,0.2) 100%);
+    }
+    .timeline-content h3 {
+      font-family: 'Anthropic Serif', Georgia, serif;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      margin: 0 0 12px;
+    }
+    .timeline-content p {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0 0 20px;
+    }
+    .timeline-meta {
+      font-family: 'Anthropic Mono', ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ─── CTA strip ──────────────────────────────────────────── */
+    #cta {
+      padding: 120px 0;
+      background: #0a0a08;
+      color: #fff;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #cta .ambient-orb {
+      width: 600px;
+      height: 600px;
+      background: var(--accent);
+      opacity: 0.08;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    #cta h2 {
+      font-family: 'Anthropic Serif', Georgia, serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin: 0 0 16px;
+      position: relative;
+      z-index: 1;
+    }
+    #cta p {
+      font-size: 18px;
+      color: #87867f;
+      max-width: 480px;
+      margin: 0 auto 36px;
+      position: relative;
+      z-index: 1;
+      line-height: 1.6;
+    }
+    #cta .btn-accent {
+      position: relative;
+      z-index: 1;
+      padding: 16px 36px;
+      font-size: 16px;
+    }
+
+    /* ─── Footer ─────────────────────────────────────────────── */
+    #footer {
+      padding: 48px 0;
+      background: #0a0a08;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      color: #87867f;
+      font-size: 13px;
+    }
+    #footer .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    /* ─── Reduced motion ────────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+      .hero-headline .char { opacity: 1; transform: none; }
+      .hero-sub, .hero-actions { opacity: 1; transform: none; }
+      .feature-card { opacity: 1; transform: none !important; }
+      .feature-card:hover { transform: none !important; }
+      .feature-card:hover .feature-icon,
+      .feature-card:hover h3,
+      .feature-card:hover p { transform: none !important; }
+      .timeline-visual, .timeline-content { opacity: 1; transform: none; }
+      .ambient-orb { display: none; }
+      .btn-accent:hover { transform: none; }
+      .btn-ghost:hover { transform: none; }
+    }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 920px) {
+      .features-grid { grid-template-columns: 1fr; max-width: 480px; }
+      .timeline-item { grid-template-columns: 1fr; gap: 24px; }
+      .timeline-item:nth-child(even) { direction: ltr; }
+      .timeline-line { left: 20px; }
+      .timeline-dot { left: 20px; }
+      .timeline-item { padding-left: 48px; }
+      .glass-nav nav { display: none; }
+      .glass-nav .btn-accent { display: none; }
+      .hamburger { display: flex; }
+      .mobile-nav { display: flex; }
+      .hero-headline { font-size: clamp(48px, 12vw, 80px); }
+    }
+    @media (max-width: 640px) {
+      .hero-headline { font-size: clamp(40px, 14vw, 64px); }
+      .features-grid { padding: 0 16px; }
+      .timeline { padding: 0 16px; }
+      #features, #showcase, #cta { padding: 80px 0; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to content</a>
+
+  <!-- Glassmorphism Navigation -->
+  <header class="glass-nav" id="topnav" data-od-id="topnav">
+    <div class="glass-nav-inner">
+      <span class="logo">ERA</span>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#showcase">Showcase</a>
+        <a href="#cta">Start</a>
+      </nav>
+      <button class="btn-accent" onclick="lenis.scrollTo('#cta')">Get Started</button>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile nav overlay -->
+  <div class="mobile-nav" id="mobile-nav" aria-hidden="true">
+    <a href="#features" data-nav-close>Features</a>
+    <a href="#showcase" data-nav-close>Showcase</a>
+    <a href="#cta" data-nav-close>Start</a>
+    <button class="btn-accent" data-nav-close onclick="lenis.scrollTo('#cta')">Get Started</button>
+  </div>
+
+  <main id="main-content">
+
+  <!-- Hero: Three.js point-cloud sphere -->
+  <section id="hero" data-od-id="hero">
+    <canvas id="three-canvas" aria-hidden="true" role="presentation"></canvas>
+    <div class="hero-overlay">
+      <h1 class="hero-headline" id="hero-headline">
+        THE<br>ERA OF AI
+      </h1>
+      <p class="hero-sub" id="hero-sub">
+        Intelligence reimagined. A new paradigm for how we think, create, and build — powered by reasoning at scale.
+      </p>
+      <div class="hero-actions" id="hero-actions">
+        <button class="btn-accent" onclick="lenis.scrollTo('#features')">Explore Features</button>
+        <button class="btn-ghost" onclick="lenis.scrollTo('#showcase')">See It in Action</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section id="features" data-od-id="features">
+    <div class="features-header">
+      <p class="eyebrow">What's Different</p>
+      <h2>Intelligence that works the way you do.</h2>
+      <p>Six capabilities that redefine what an AI assistant can achieve — from reasoning to creation.</p>
+    </div>
+    <div class="features-grid" id="features-grid">
+      <div class="feature-card" data-od-id="feature-card-reasoning">
+        <div class="feature-card-inner">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          </div>
+          <h3>Deep Reasoning</h3>
+          <p>Multi-step logical chains that break down complex problems into solvable parts, tracing every assumption.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-od-id="feature-card-context">
+        <div class="feature-card-inner">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <h3>200K Context Window</h3>
+          <p>Process entire books, codebases, and document sets in a single session — no chunking, no loss of continuity.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-od-id="feature-card-code">
+        <div class="feature-card-inner">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h3>Code Generation</h3>
+          <p>Full-stack applications from natural language. Write, test, debug, and deploy — all within the conversation.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-od-id="feature-card-multimodal">
+        <div class="feature-card-inner">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <h3>Multimodal Input</h3>
+          <p>Analyze images, charts, PDFs, and screenshots — extract insights, translate visuals, annotate outputs.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-od-id="feature-card-tool-use">
+        <div class="feature-card-inner">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </div>
+          <h3>Tool Use</h3>
+          <p>Connect to APIs, query databases, run shell commands — the assistant acts on your behalf, securely sandboxed.</p>
+        </div>
+      </div>
+      <div class="feature-card" data-od-id="feature-card-safety">
+        <div class="feature-card-inner">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Constitutional Safety</h3>
+          <p>Alignment through principles, not patches. Every response is governed by transparent, auditable constraints.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcase / Timeline -->
+  <section id="showcase" data-od-id="showcase">
+    <div class="ambient-orb orb-1" data-od-id="ambient-orb-1" aria-hidden="true"></div>
+    <div class="ambient-orb orb-2" data-od-id="ambient-orb-2" aria-hidden="true"></div>
+    <div class="showcase-header">
+      <p class="eyebrow">In Practice</p>
+      <h2>See the intelligence at work.</h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-line"></div>
+
+      <div class="timeline-item" data-od-id="timeline-reason">
+        <div class="timeline-visual">
+          <div class="chat-bubble-group">
+            <div class="chat-bubble user">Explain the Monty Hall problem and why switching doors is the right strategy.</div>
+            <div class="chat-bubble bot">Let me reason through this step by step...<br>Step 1: Initial probability — you pick door 1, P(car) = 1/3.</div>
+            <div class="chat-bubble bot">Step 2: Host opens a goat door, but host's choice is constrained. The key insight: your initial door still has 1/3 chance. The remaining door absorbs the probability of the opened door → 2/3.</div>
+          </div>
+        </div>
+        <div class="timeline-content">
+          <div class="timeline-dot"></div>
+          <span class="timeline-meta">Step 01</span>
+          <h3>Transparent reasoning</h3>
+          <p>Every answer traces its logic — assumptions, alternatives, and confidence. You see not just what it thinks, but how it got there.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item" data-od-id="timeline-code">
+        <div class="timeline-visual">
+          <div class="chat-bubble-group">
+            <div class="chat-bubble user">Build a REST API for a todo app with Express and TypeScript.</div>
+            <div class="chat-bubble bot">Here's the implementation with full CRUD, validation, and error handling — I'll write each file.</div>
+            <div class="chat-bubble bot" style="font-family: 'Anthropic Mono', monospace; font-size: 11px;">
+              // src/routes/todos.ts<br>
+              router.get('/', async (req, res) => {<br>
+              &nbsp;&nbsp;const todos = await Todo.find();<br>
+              &nbsp;&nbsp;res.json(todos);<br>
+              });
+            </div>
+          </div>
+        </div>
+        <div class="timeline-content">
+          <div class="timeline-dot"></div>
+          <span class="timeline-meta">Step 02</span>
+          <h3>Production-grade code</h3>
+          <p>Not just snippets — complete, tested, typed applications with error handling, edge cases, and deployment configs.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item" data-od-id="timeline-analytics">
+        <div class="timeline-visual">
+          <div class="graph-placeholder" style="flex-direction: column; align-items: stretch; justify-content: flex-end;">
+            <div style="display:flex; gap:12px; align-items:flex-end; height:100%;">
+              <div class="graph-bar" style="height:30%;"></div>
+              <div class="graph-bar" style="height:45%;"></div>
+              <div class="graph-bar" style="height:60%;"></div>
+              <div class="graph-bar" style="height:40%;"></div>
+              <div class="graph-bar" style="height:75%;"></div>
+              <div class="graph-bar" style="height:55%;"></div>
+              <div class="graph-bar" style="height:90%;"></div>
+              <div class="graph-bar" style="height:65%;"></div>
+              <div class="graph-bar" style="height:85%;"></div>
+              <div class="graph-bar" style="height:70%;"></div>
+              <div class="graph-bar" style="height:50%;"></div>
+              <div class="graph-bar" style="height:80%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="timeline-content">
+          <div class="timeline-dot"></div>
+          <span class="timeline-meta">Step 03</span>
+          <h3>Data-driven insights</h3>
+          <p>Upload spreadsheets, CSVs, or connect to live data sources. Receive instant analysis, visualizations, and strategic recommendations.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item" data-od-id="timeline-create">
+        <div class="timeline-visual">
+          <div class="chat-bubble-group">
+            <div class="chat-bubble user">Design a landing page for a premium AI assistant — white, warm grays, orange accents.</div>
+            <div class="chat-bubble bot">I'll create a complete HTML/CSS prototype with Three.js hero, GSAP animations, and a responsive grid.</div>
+            <div class="chat-bubble bot" style="font-size: 11px;">File: index.html — 1000+ lines, production-ready with dark mode, smooth scroll, and interactive states.</div>
+          </div>
+        </div>
+        <div class="timeline-content">
+          <div class="timeline-dot"></div>
+          <span class="timeline-meta">Step 04</span>
+          <h3>Creative output</h3>
+          <p>From design specs to complete prototypes. The assistant generates polished, shipped-quality artifacts — not wireframes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Strip -->
+  <section id="cta" data-od-id="cta-strip">
+    <div class="ambient-orb orb-1" aria-hidden="true"></div>
+    <h2>Ready to experience the era?</h2>
+    <p>Join the thousands of teams already building with reasoning-first AI. Start free, no credit card required.</p>
+    <button class="btn-accent">Start Building Free</button>
+  </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer id="footer" data-od-id="footer">
+    <div class="footer-inner">
+      <span>&copy; 2026 ERA · Built with Claude</span>
+      <span style="font-family: 'Anthropic Mono', monospace;">Privacy · Terms · Status</span>
+    </div>
+  </footer>
+
+  <!-- ─── CDN Scripts ─────────────────────────────────────────── -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+  <script>
+    // ─── Reduced motion check ──────────────────────────────────
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ─── Lenis smooth scroll ───────────────────────────────────
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // Wire Lenis to GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => {
+      if (time === 0) return;
+      lenis.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+
+    // ─── Glass nav scroll detection ────────────────────────────
+    const nav = document.getElementById('topnav');
+    lenis.on('scroll', ({ scroll }) => {
+      if (scroll > 60) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    });
+
+    // ─── Mobile hamburger ─────────────────────────────────────
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+    hamburger.addEventListener('click', () => {
+      const open = hamburger.classList.toggle('open');
+      mobileNav.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', open);
+      mobileNav.setAttribute('aria-hidden', !open);
+    });
+    document.querySelectorAll('[data-nav-close]').forEach((el) => {
+      el.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileNav.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        mobileNav.setAttribute('aria-hidden', 'true');
+      });
+    });
+
+    // ─── Three.js point-cloud sphere ───────────────────────────
+    const canvas = document.getElementById('three-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.z = 5;
+
+    const sphereGeo = new THREE.SphereGeometry(1.6, 64, 64);
+    const positions = sphereGeo.attributes.position.array;
+    const pointsArr = [];
+    for (let i = 0; i < positions.length; i += 3) {
+      pointsArr.push(positions[i], positions[i + 1], positions[i + 2]);
+    }
+    const pointsGeo = new THREE.BufferGeometry();
+    pointsGeo.setAttribute('position', new THREE.Float32BufferAttribute(pointsArr, 3));
+
+    const pointsMat = new THREE.PointsMaterial({
+      color: 0x111111,
+      size: 0.012,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+
+    const points = new THREE.Points(pointsGeo, pointsMat);
+    scene.add(points);
+
+    // Secondary orange accent ring
+    const ringGeo = new THREE.TorusGeometry(1.8, 0.003, 16, 200);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xff5500, transparent: true, opacity: 0.3 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 3;
+    scene.add(ring);
+
+    const ring2 = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xff5500, transparent: true, opacity: 0.15 }));
+    ring2.rotation.x = -Math.PI / 4;
+    ring2.rotation.y = Math.PI / 5;
+    scene.add(ring2);
+
+    const mouse = { x: 0, y: 0 };
+    const target = { x: 0, y: 0 };
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      target.x += (mouse.x - target.x) * 0.05;
+      target.y += (mouse.y - target.y) * 0.05;
+      points.rotation.y += 0.0015;
+      points.rotation.x = target.y * 0.3;
+      ring.rotation.z += 0.002;
+      ring2.rotation.z -= 0.001;
+      ring.rotation.x = Math.PI / 3 + target.y * 0.2;
+      ring2.rotation.x = -Math.PI / 4 + target.y * 0.15;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // ─── GSAP Hero text animation ──────────────────────────────
+    if (!prefersReducedMotion) {
+      const headline = document.getElementById('hero-headline');
+      const text = headline.textContent;
+      headline.textContent = '';
+      const chars = [];
+      for (let i = 0; i < text.length; i++) {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = text[i] === '\n' ? '' : text[i];
+        if (text[i] === '\n') {
+          const br = document.createElement('br');
+          headline.appendChild(br);
+        }
+        headline.appendChild(span);
+        if (text[i] !== '\n' && text[i] !== ' ') chars.push(span);
+      }
+
+      const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+      tl.to(chars, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        duration: 0.9,
+        stagger: 0.04,
+        delay: 0.5,
+      });
+      tl.to('#hero-sub', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.3');
+      tl.to('#hero-actions', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.4');
+    }
+
+    // ─── GSAP ScrollTrigger: Features stagger ──────────────────
+    gsap.registerPlugin(ScrollTrigger);
+
+    if (!prefersReducedMotion) {
+      const featureCards = gsap.utils.toArray('.feature-card');
+      featureCards.forEach((card, i) => {
+        gsap.fromTo(card,
+          { opacity: 0, y: 60 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.9,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top bottom-=60',
+              toggleActions: 'play none none none',
+            },
+            delay: i * 0.1,
+          }
+        );
+      });
+    }
+
+    // ─── 3D Tilt on feature cards ─────────────────────────────
+    if (!prefersReducedMotion) {
+      const featureCards = gsap.utils.toArray('.feature-card');
+      featureCards.forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -8;
+        const rotateY = ((x - centerX) / centerX) * 8;
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      });
+    });
+    }
+
+    // ─── GSAP ScrollTrigger: Timeline items ────────────────────
+    if (!prefersReducedMotion) {
+      const timelineItems = gsap.utils.toArray('.timeline-item');
+      timelineItems.forEach((item, i) => {
+        const visual = item.querySelector('.timeline-visual');
+        const content = item.querySelector('.timeline-content');
+        const isEven = i % 2 === 1;
+
+        gsap.fromTo(visual,
+          { opacity: 0, x: isEven ? 80 : -80, scale: 0.92 },
+          {
+            opacity: 1,
+            x: 0,
+            scale: 1,
+            duration: 1,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: item,
+              start: 'top bottom-=100',
+              toggleActions: 'play none none none',
+            },
+          }
+        );
+
+        gsap.fromTo(content,
+          { opacity: 0, x: isEven ? -60 : 60 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: 0.15,
+            scrollTrigger: {
+              trigger: item,
+              start: 'top bottom-=100',
+              toggleActions: 'play none none none',
+            },
+          }
+        );
+      });
+    }
+
+    // ─── Parallax ambient orbs ─────────────────────────────────
+    if (!prefersReducedMotion) {
+      gsap.to('.orb-1', {
+        y: '-15%',
+        x: '5%',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#showcase',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      });
+      gsap.to('.orb-2', {
+        y: '10%',
+        x: '-5%',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#showcase',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      });
+
+      // ─── CTA section parallax orb ──────────────────────────────
+      gsap.to('#cta .ambient-orb', {
+        scale: 1.3,
+        opacity: 0.12,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#cta',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      });
+    }
+  </script>
+</body>
+</html>
