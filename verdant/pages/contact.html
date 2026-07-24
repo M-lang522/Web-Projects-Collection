@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Verdant Lab</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  .contact-hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    padding-top:140px;
+    padding-bottom:80px;
+    background:
+      radial-gradient(ellipse 800px 600px at 85% 20%, rgba(143,184,138,0.22), transparent 60%),
+      radial-gradient(ellipse 600px 600px at 10% 85%, rgba(216,232,210,0.55), transparent 60%),
+      var(--grain-white);
+  }
+  .contact-grid{
+    display:grid;
+    grid-template-columns:0.9fr 1.1fr;
+    gap:70px;
+    max-width:1280px;
+    margin:0 auto;
+    width:100%;
+    align-items:flex-start;
+  }
+  .contact-left h1{
+    font-size:clamp(2.6rem,5vw,4.2rem);
+    margin:20px 0 26px;
+  }
+  .contact-left h1 em{font-style:italic;color:var(--sage-deep);}
+  .contact-left p{font-size:1.08rem;max-width:440px;margin-bottom:44px;}
+  .contact-info{display:flex;flex-direction:column;gap:22px;}
+  .contact-info-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    font-size:0.95rem;
+  }
+  .contact-info-row .ci-icon{
+    width:40px;height:40px;
+    border-radius:50%;
+    background:var(--chlorophyll);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1rem;
+    flex-shrink:0;
+  }
+  .contact-info-row b{display:block;font-family:'IBM Plex Mono',monospace;font-size:0.68rem;letter-spacing:.06em;color:var(--sage);margin-bottom:2px;}
+
+  /* Form */
+  .contact-form{
+    padding:48px;
+  }
+  .form-row{
+    position:relative;
+    margin-bottom:30px;
+  }
+  .form-row.split{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+  }
+  .field{position:relative;}
+  .field input,.field textarea,.field select{
+    width:100%;
+    padding:18px 4px 10px;
+    border:none;
+    border-bottom:1px solid rgba(15,28,20,0.25);
+    background:transparent;
+    font-family:'Inter',sans-serif;
+    font-size:1rem;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .35s;
+  }
+  .field textarea{resize:none;min-height:90px;}
+  .field label{
+    position:absolute;
+    left:4px;top:18px;
+    font-size:1rem;
+    color:var(--ink-soft);
+    opacity:0.6;
+    pointer-events:none;
+    transition:all .3s var(--ease);
+  }
+  .field input:focus,.field textarea:focus,.field select:focus{
+    border-color:var(--sage-deep);
+  }
+  .field input:focus + label,
+  .field input:not(:placeholder-shown) + label,
+  .field textarea:focus + label,
+  .field textarea:not(:placeholder-shown) + label{
+    top:-4px;
+    font-size:0.72rem;
+    color:var(--sage);
+    opacity:1;
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:.05em;
+  }
+  .field-underline{
+    position:absolute;bottom:0;left:0;
+    height:1px;width:0;
+    background:var(--sage-deep);
+    transition:width .4s var(--ease);
+  }
+  .field input:focus ~ .field-underline,
+  .field textarea:focus ~ .field-underline{width:100%;}
+
+  .magnet-btn-wrap{margin-top:18px;}
+  .submit-btn{
+    position:relative;
+    width:100%;
+    padding:22px;
+    border-radius:16px;
+    border:none;
+    background:var(--ink);
+    color:var(--grain-white);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.85rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    cursor:none;
+    overflow:hidden;
+  }
+  .submit-btn .glow{
+    position:absolute;
+    width:220px;height:220px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(143,184,138,0.55),transparent 70%);
+    top:0;left:0;
+    transform:translate(-50%,-50%);
+    opacity:0;
+    transition:opacity .4s;
+    pointer-events:none;
+  }
+  .submit-btn:hover .glow{opacity:1;}
+  .submit-btn span.label{position:relative;z-index:2;}
+
+  .success-msg{
+    display:none;
+    margin-top:20px;
+    padding:16px 20px;
+    border-radius:12px;
+    background:var(--chlorophyll);
+    color:var(--sage-deep);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.82rem;
+  }
+  .success-msg.show{display:block;}
+
+  @media (max-width:900px){
+    .contact-grid{grid-template-columns:1fr;}
+    .form-row.split{grid-template-columns:1fr;}
+    .contact-form{padding:30px;}
+  }
+</style>
+</head>
+<body>
+<div class="page-loader"><div class="mono">CONNECTING…</div></div>
+
+<section class="contact-hero">
+  <div class="contact-grid">
+    <div class="contact-left">
+      <div class="eyebrow reveal">Get In Touch</div>
+      <h1 class="reveal">Let's read your <em>baseline</em> first.</h1>
+      <p class="reveal">Every relationship starts with a consult, not a purchase. Tell us a little about your skin and we'll schedule a baseline reading.</p>
+      <div class="contact-info reveal-stagger">
+        <div class="contact-info-row">
+          <div class="ci-icon">✉</div>
+          <div><b>EMAIL</b>hello@verdantlab.co</div>
+        </div>
+        <div class="contact-info-row">
+          <div class="ci-icon">☎</div>
+          <div><b>PHONE</b>+1 (503) 555-0142</div>
+        </div>
+        <div class="contact-info-row">
+          <div class="ci-icon">◉</div>
+          <div><b>STUDIOS</b>Kyoto · Portland</div>
+        </div>
+      </div>
+    </div>
+
+    <form class="contact-form glass reveal" id="contactForm">
+      <div class="form-row split">
+        <div class="field">
+          <input type="text" id="fname" placeholder=" " required>
+          <label for="fname">First Name</label>
+          <div class="field-underline"></div>
+        </div>
+        <div class="field">
+          <input type="text" id="lname" placeholder=" " required>
+          <label for="lname">Last Name</label>
+          <div class="field-underline"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <input type="email" id="email" placeholder=" " required>
+          <label for="email">Email Address</label>
+          <div class="field-underline"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <input type="text" id="concern" placeholder=" ">
+          <label for="concern">Primary Skin Concern</label>
+          <div class="field-underline"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <textarea id="message" placeholder=" " rows="4"></textarea>
+          <label for="message">Tell us a bit more</label>
+          <div class="field-underline"></div>
+        </div>
+      </div>
+      <div class="magnet-btn-wrap">
+        <button type="submit" class="submit-btn magnetic" id="submitBtn">
+          <span class="glow" id="btnGlow"></span>
+          <span class="label">Book My Consult</span>
+        </button>
+      </div>
+      <div class="success-msg" id="successMsg">✓ Received — we'll reach out within one business day to schedule your baseline reading.</div>
+    </form>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<script src="../js/chrome.js"></script>
+<script>mountChrome('contact');</script>
+<script src="../js/common.js"></script>
+<script>
+gsap.registerPlugin(ScrollToPlugin);
+
+/* Bounce-in form fields on load */
+window.addEventListener('load',()=>{
+  gsap.from('.form-row',{
+    opacity:0,y:36,duration:0.9,stagger:0.12,ease:'back.out(1.6)',delay:0.5
+  });
+  gsap.from('.magnet-btn-wrap',{
+    opacity:0,y:36,duration:0.9,ease:'back.out(1.6)',delay:0.5+0.12*4
+  });
+});
+
+/* Glow tracks cursor within button */
+const submitBtn=document.getElementById('submitBtn');
+const glow=document.getElementById('btnGlow');
+submitBtn.addEventListener('mousemove',e=>{
+  const r=submitBtn.getBoundingClientRect();
+  glow.style.left=(e.clientX-r.left)+'px';
+  glow.style.top=(e.clientY-r.top)+'px';
+});
+
+/* Form submit */
+document.getElementById('contactForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const msg=document.getElementById('successMsg');
+  msg.classList.add('show');
+  gsap.from(msg,{opacity:0,y:-10,duration:0.5,ease:'power2.out'});
+  submitBtn.querySelector('.label').textContent='Sent ✓';
+  submitBtn.disabled=true;
+});
+</script>
+</body>
+</html>

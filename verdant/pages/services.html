@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solutions — Verdant Lab</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  .svc-hero{padding-top:180px;padding-bottom:60px;}
+  .svc-hero h1{font-size:clamp(2.8rem,6vw,5rem);max-width:900px;}
+  .svc-hero h1 em{font-style:italic;color:var(--sage-deep);}
+  .svc-hero p{font-size:1.1rem;max-width:560px;margin-top:24px;}
+
+  .svc-section{
+    transition:background 0.7s var(--ease);
+    padding-top:60px;
+    padding-bottom:60px;
+  }
+  .svc-list{max-width:1000px;margin:0 auto;}
+  .svc-row{
+    display:grid;
+    grid-template-columns:80px 1fr auto;
+    align-items:center;
+    gap:30px;
+    padding:36px 20px;
+    border-top:1px solid rgba(15,28,20,0.12);
+    cursor:none;
+    transition:padding 0.4s var(--ease);
+  }
+  .svc-list .svc-row:last-child{border-bottom:1px solid rgba(15,28,20,0.12);}
+  .svc-row .idx{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.85rem;
+    color:var(--sage);
+  }
+  .svc-row h3{
+    font-size:clamp(1.6rem,3vw,2.4rem);
+    font-weight:400;
+    transition:transform .4s var(--ease),color .4s;
+  }
+  .svc-row:hover h3{
+    transform:translateX(14px);
+    color:var(--sage-deep);
+  }
+  .svc-row .arrow{
+    width:48px;height:48px;
+    border-radius:50%;
+    border:1px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    transition:all .4s var(--ease);
+    flex-shrink:0;
+  }
+  .svc-row:hover .arrow{
+    background:var(--sage-deep);
+    border-color:var(--sage-deep);
+    color:var(--grain-white);
+    transform:rotate(45deg);
+  }
+  .svc-detail{
+    grid-column:1 / -1;
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .6s var(--ease);
+  }
+  .svc-row.open .svc-detail{max-height:220px;}
+  .svc-detail-inner{
+    padding:20px 0 10px 110px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:40px;
+  }
+  .svc-detail p{font-size:0.98rem;}
+  .svc-stat{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.75rem;
+    color:var(--sage);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .svc-stat b{font-family:'Fraunces',serif;font-size:1.6rem;color:var(--ink);font-weight:500;}
+
+  /* Focus pop cards below */
+  .focus-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:26px;
+  }
+  .focus-card{
+    padding:40px 30px;
+    text-align:left;
+    transform:scale(0.94);
+    opacity:0.6;
+    transition:transform .5s var(--ease),opacity .5s var(--ease),box-shadow .5s var(--ease);
+  }
+  .focus-card.in-focus{
+    transform:scale(1);
+    opacity:1;
+  }
+  .focus-card .icon{
+    width:52px;height:52px;
+    border-radius:14px;
+    background:linear-gradient(135deg,var(--sage),var(--mint-glass));
+    margin-bottom:24px;
+  }
+  .focus-card h4{font-size:1.3rem;margin-bottom:12px;}
+  .focus-card p{font-size:0.92rem;}
+
+  @media (max-width:900px){
+    .svc-row{grid-template-columns:50px 1fr auto;}
+    .svc-detail-inner{grid-template-columns:1fr;padding-left:70px;}
+    .focus-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="page-loader"><div class="mono">FORMULATING…</div></div>
+
+<section class="svc-hero">
+  <div class="container">
+    <div class="eyebrow reveal">Our Solutions</div>
+    <h1 class="reveal" style="margin-top:20px;">Five ways we work with <em>your skin</em>, not a category shelf.</h1>
+    <p class="reveal">Every engagement starts with measurement, not a product line. Expand each solution below.</p>
+  </div>
+</section>
+
+<section class="svc-section" id="svcSection">
+  <div class="container svc-list">
+    <div class="svc-row" data-bg="rgba(216,232,210,0.5)">
+      <span class="idx">01</span>
+      <h3>Baseline Skin Analysis</h3>
+      <div class="arrow">↗</div>
+      <div class="svc-detail">
+        <div class="svc-detail-inner">
+          <p>We run a spectrometric read of your skin's current barrier function, oil composition, and sensitivity threshold before recommending anything — the same rigor we apply to plant batches.</p>
+          <div class="svc-stat">DURATION<b>45 min</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="svc-row" data-bg="rgba(143,184,138,0.35)">
+      <span class="idx">02</span>
+      <h3>Custom Extraction Dosing</h3>
+      <div class="arrow">↗</div>
+      <div class="svc-detail">
+        <div class="svc-detail-inner">
+          <p>Your regimen is dosed to your baseline reading, not a universal percentage — active concentration calculated per client, per batch.</p>
+          <div class="svc-stat">TURNAROUND<b>10 days</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="svc-row" data-bg="rgba(201,168,118,0.3)">
+      <span class="idx">03</span>
+      <h3>Quarterly Recalibration</h3>
+      <div class="arrow">↗</div>
+      <div class="svc-detail">
+        <div class="svc-detail-inner">
+          <p>Skin changes with season and age. We retest every quarter and adjust dosing rather than asking you to keep guessing.</p>
+          <div class="svc-stat">CADENCE<b>4x / yr</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="svc-row" data-bg="rgba(216,232,210,0.55)">
+      <span class="idx">04</span>
+      <h3>Wholesale Formulation</h3>
+      <div class="arrow">↗</div>
+      <div class="svc-detail">
+        <div class="svc-detail-inner">
+          <p>For studios and clinics who want single-origin actives at scale, we extend our extraction protocol to bulk formulation runs.</p>
+          <div class="svc-stat">MIN. ORDER<b>50 units</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="svc-row" data-bg="rgba(74,107,79,0.25)">
+      <span class="idx">05</span>
+      <h3>Archive Access</h3>
+      <div class="arrow">↗</div>
+      <div class="svc-detail">
+        <div class="svc-detail-inner">
+          <p>Clients get standing access to every batch record we've ever logged for their formula — full traceability, no black box.</p>
+          <div class="svc-stat">ACCESS<b>Lifetime</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="eyebrow reveal" style="margin-bottom:20px;">Why It's Different</div>
+    <h2 class="reveal" style="font-size:clamp(2.2rem,4vw,3.2rem);max-width:600px;margin-bottom:56px;">Three things a shelf product can't do.</h2>
+    <div class="focus-grid">
+      <div class="focus-card glass tilt">
+        <div class="icon"></div>
+        <h4>Measure First</h4>
+        <p>No formula ships before your baseline is read — the inverse of buy-then-hope skincare.</p>
+      </div>
+      <div class="focus-card glass tilt">
+        <div class="icon" style="background:linear-gradient(135deg,var(--amber),var(--amber-soft));"></div>
+        <h4>Trace Everything</h4>
+        <p>Every vial ships with its extraction date, origin plot, and spectrometry reading printed on the label.</p>
+      </div>
+      <div class="focus-card glass tilt">
+        <div class="icon" style="background:linear-gradient(135deg,var(--sage-deep),var(--sage));"></div>
+        <h4>Recalibrate, Don't Repeat</h4>
+        <p>Quarterly retesting means your regimen shifts with your skin instead of staying static for years.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band" style="background:linear-gradient(135deg,#33492F,#4A6B4F);color:#FBFAF6;text-align:center;border-radius:0;">
+  <div class="reveal">
+    <h2 style="color:#FBFAF6;font-size:clamp(2.4rem,5vw,4rem);max-width:800px;margin:0 auto 40px;">Start with a baseline reading.</h2>
+    <a href="contact.html" class="btn magnetic" style="background:#FBFAF6;color:#0F1C14;">Book Your Consult <span class="btn-arrow">→</span></a>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<script src="../js/chrome.js"></script>
+<script>mountChrome('services');</script>
+<script src="../js/common.js"></script>
+<script>
+gsap.registerPlugin(ScrollToPlugin);
+/* Accordion */
+document.querySelectorAll('.svc-row').forEach(row=>{
+  row.addEventListener('click',()=>{
+    const wasOpen=row.classList.contains('open');
+    document.querySelectorAll('.svc-row').forEach(r=>r.classList.remove('open'));
+    if(!wasOpen)row.classList.add('open');
+  });
+  row.addEventListener('mouseenter',()=>{
+    gsap.to('#svcSection',{backgroundColor:row.dataset.bg,duration:0.7,ease:'power2.out'});
+  });
+  row.addEventListener('mouseleave',()=>{
+    gsap.to('#svcSection',{backgroundColor:'rgba(0,0,0,0)',duration:0.7,ease:'power2.out'});
+  });
+});
+
+/* Focus cards pop as they enter */
+document.querySelectorAll('.focus-card').forEach(card=>{
+  ScrollTrigger.create({
+    trigger:card,
+    start:'top 82%',
+    onEnter:()=>card.classList.add('in-focus')
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verdant Lab — Botanical Extraction Studio</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  .loader-vial{width:2px;height:60px;background:var(--sage);position:relative;overflow:hidden;}
+  /* HERO */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    padding:140px 4vw 60px;
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse 900px 600px at 15% 20%, rgba(143,184,138,0.25), transparent 60%),
+      radial-gradient(ellipse 700px 700px at 85% 75%, rgba(216,232,210,0.6), transparent 60%),
+      var(--grain-white);
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.15fr 0.85fr;
+    gap:60px;
+    align-items:center;
+    width:100%;
+    max-width:1360px;
+    margin:0 auto;
+    position:relative;
+    z-index:2;
+  }
+  .hero h1{
+    font-size:clamp(3rem,6.4vw,5.6rem);
+    font-weight:400;
+    margin:22px 0 28px;
+  }
+  .hero h1 em{
+    font-style:italic;
+    font-weight:500;
+    color:var(--sage-deep);
+  }
+  .hero p.lead{
+    font-size:1.15rem;
+    max-width:480px;
+    margin-bottom:38px;
+  }
+  .hero-actions{display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+  .hero-note{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.75rem;
+    color:var(--sage);
+    letter-spacing:.04em;
+  }
+  /* Vial visual */
+  .vial-stage{
+    position:relative;
+    height:560px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .vial-wrap{
+    position:relative;
+    width:220px;
+    height:440px;
+  }
+  svg.vial{width:100%;height:100%;overflow:visible;}
+  .vial-liquid{
+    transform-origin:bottom;
+  }
+  .vial-particle{
+    position:absolute;
+    border-radius:50%;
+    background:var(--mint-glass);
+    opacity:0.5;
+    filter:blur(1px);
+  }
+  .float-label{
+    position:absolute;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.68rem;
+    letter-spacing:.08em;
+    color:var(--sage-deep);
+    background:var(--glass-bg);
+    backdrop-filter:blur(10px);
+    padding:6px 12px;
+    border-radius:100px;
+    border:1px solid var(--glass-border);
+  }
+  .fl-1{top:6%;left:-8%;}
+  .fl-2{bottom:14%;right:-14%;}
+
+  .scroll-cue{
+    position:absolute;bottom:34px;left:4vw;
+    display:flex;align-items:center;gap:12px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:.1em;
+    color:var(--sage);
+    z-index:3;
+  }
+  .scroll-cue .line{width:1px;height:34px;background:var(--sage);position:relative;overflow:hidden;}
+  .scroll-cue .line::after{
+    content:"";position:absolute;top:-100%;left:0;width:100%;height:100%;
+    background:var(--sage-deep);
+    animation:cueDrop 1.8s ease-in-out infinite;
+  }
+  @keyframes cueDrop{0%{top:-100%;}60%,100%{top:100%;}}
+
+  /* MARQUEE */
+  .marquee-strip{
+    padding:34px 0;
+    border-top:1px solid rgba(15,28,20,0.08);
+    border-bottom:1px solid rgba(15,28,20,0.08);
+    overflow:hidden;
+    white-space:nowrap;
+  }
+  .marquee-track{display:inline-flex;gap:60px;animation:marquee 28s linear infinite;}
+  .marquee-track span{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:1.4rem;
+    color:var(--ink-soft);
+    opacity:.55;
+    display:flex;align-items:center;gap:60px;
+  }
+  .marquee-track span::after{content:"✦";font-style:normal;color:var(--sage);opacity:.6;}
+  @keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+  /* BENTO */
+  .bento-head{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    margin-bottom:56px;flex-wrap:wrap;gap:24px;
+  }
+  .bento-head h2{font-size:clamp(2.2rem,4vw,3.4rem);max-width:640px;}
+  .bento-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    grid-auto-rows:minmax(180px,auto);
+    gap:22px;
+  }
+  .bento-card{
+    padding:36px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition:box-shadow .5s var(--ease),background .5s var(--ease);
+    cursor:none;
+  }
+  .bento-card:hover{
+    background:rgba(216,232,210,0.55);
+    box-shadow:0 30px 70px -20px rgba(74,107,79,0.45);
+  }
+  .bento-card .num{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--sage);}
+  .bento-card h3{font-size:1.5rem;margin:18px 0 10px;font-weight:500;}
+  .bento-card p{font-size:0.92rem;}
+  .b-1{grid-column:span 3;grid-row:span 2;}
+  .b-2{grid-column:span 3;}
+  .b-3{grid-column:span 2;}
+  .b-4{grid-column:span 2;}
+  .b-5{grid-column:span 2;}
+  .b-6{grid-column:span 6;grid-row:span 1;display:grid;grid-template-columns:1.4fr 1fr;align-items:center;gap:30px;}
+  .b-6 img{width:100%;height:100%;object-fit:cover;border-radius:16px;max-height:220px;}
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr;}
+    .vial-stage{height:340px;order:-1;}
+    .bento-grid{grid-template-columns:1fr;}
+    .b-1,.b-2,.b-3,.b-4,.b-5,.b-6{grid-column:span 1;}
+    .b-6{grid-template-columns:1fr;}
+  }
+
+  /* HORIZONTAL SCROLL SECTION */
+  .horizontal-section{
+    position:relative;
+    height:100vh;
+    overflow:hidden;
+    background:var(--ink);
+    color:var(--grain-white);
+  }
+  .h-pin{
+    height:100%;
+    display:flex;
+    align-items:center;
+  }
+  .h-track{
+    display:flex;
+    gap:5vw;
+    padding:0 8vw;
+    align-items:center;
+    will-change:transform;
+  }
+  .h-intro{
+    min-width:38vw;
+    flex-shrink:0;
+  }
+  .h-intro .eyebrow{color:var(--mint-glass);}
+  .h-intro .eyebrow::before{background:var(--mint-glass);}
+  .h-intro h2{
+    color:var(--grain-white);
+    font-size:clamp(2.4rem,4.6vw,4rem);
+    margin-top:18px;
+  }
+  .h-intro p{color:rgba(216,232,210,0.75);margin-top:20px;max-width:420px;}
+  .h-card{
+    flex-shrink:0;
+    width:340px;
+    height:460px;
+    border-radius:24px;
+    background:linear-gradient(160deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.12);
+    padding:32px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    backdrop-filter:blur(10px);
+  }
+  .h-card .idx{font-family:'IBM Plex Mono',monospace;color:var(--mint-glass);font-size:0.8rem;}
+  .h-card h3{color:var(--grain-white);font-size:1.7rem;margin-top:auto;margin-bottom:10px;}
+  .h-card p{color:rgba(216,232,210,0.7);font-size:0.9rem;}
+  .h-card .swatch{
+    width:100%;height:140px;border-radius:16px;
+    background:linear-gradient(135deg,var(--sage),var(--mint-glass));
+    margin-bottom:20px;
+  }
+
+  /* PROOF / testimonial */
+  .proof{
+    background:var(--paper);
+    text-align:center;
+  }
+  .proof blockquote{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:400;
+    font-size:clamp(1.7rem,3.4vw,2.7rem);
+    max-width:900px;
+    margin:0 auto 30px;
+    line-height:1.35;
+    color:var(--ink);
+  }
+  .proof cite{
+    font-family:'IBM Plex Mono',monospace;
+    font-style:normal;
+    font-size:0.8rem;
+    letter-spacing:.06em;
+    color:var(--sage);
+  }
+
+  /* CTA band */
+  .cta-band{
+    background:linear-gradient(135deg,var(--sage-deep),var(--sage));
+    color:var(--grain-white);
+    text-align:center;
+    border-radius:0;
+    padding:150px 4vw;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-band::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.15),transparent 55%);
+  }
+  .cta-band h2{
+    color:var(--grain-white);
+    font-size:clamp(2.6rem,5.5vw,4.6rem);
+    max-width:900px;
+    margin:0 auto 40px;
+    position:relative;z-index:2;
+  }
+  .cta-band .btn{background:var(--grain-white);color:var(--ink);}
+  .cta-band .btn::before{background:linear-gradient(120deg,var(--amber-soft),var(--grain-white));}
+</style>
+</head>
+<body>
+<div class="page-loader"><div class="mono">EXTRACTING…</div></div>
+
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow reveal">Botanical Extraction, No. 001</div>
+      <h1 class="reveal">Skincare, <em>distilled</em><br>from living chlorophyll.</h1>
+      <p class="lead reveal">Verdant Lab formulates small-batch actives from single-origin plants — cold-extracted, glass-vialed, and dosed with the precision of a laboratory, not a factory line.</p>
+      <div class="hero-actions reveal">
+        <a href="contact.html" class="btn magnetic">Book a Consult <span class="btn-arrow">→</span></a>
+        <a href="about.html" class="btn btn-outline magnetic">Read Our Story</a>
+      </div>
+    </div>
+    <div class="vial-stage">
+      <div class="float-label fl-1 reveal">CHLOROPHYLL — 98.2% PURITY</div>
+      <div class="vial-wrap">
+        <svg class="vial" viewBox="0 0 220 440">
+          <defs>
+            <linearGradient id="liquidGrad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="#4A6B4F"/>
+              <stop offset="100%" stop-color="#8FB88A"/>
+            </linearGradient>
+            <clipPath id="vialClip">
+              <path d="M80 20 H140 V90 C140 110 190 130 190 220 V380 C190 410 165 430 110 430 C55 430 30 410 30 380 V220 C30 130 80 110 80 90 Z"/>
+            </clipPath>
+          </defs>
+          <path d="M80 20 H140 V90 C140 110 190 130 190 220 V380 C190 410 165 430 110 430 C55 430 30 410 30 380 V220 C30 130 80 110 80 90 Z"
+            fill="rgba(255,255,255,0.35)" stroke="rgba(15,28,20,0.25)" stroke-width="2"/>
+          <g clip-path="url(#vialClip)">
+            <rect class="vial-liquid" id="vialLiquid" x="20" y="440" width="200" height="0" fill="url(#liquidGrad)"/>
+          </g>
+          <rect x="72" y="6" width="76" height="18" rx="4" fill="#0F1C14"/>
+        </svg>
+      </div>
+      <div class="float-label fl-2 reveal">BATCH 2026.07 — LOT 014</div>
+    </div>
+  </div>
+  <div class="scroll-cue"><div class="line"></div>SCROLL</div>
+</section>
+
+<div class="marquee-strip">
+  <div class="marquee-track">
+    <span>COLD EXTRACTION</span><span>SINGLE-ORIGIN BOTANICALS</span><span>SMALL-BATCH FORMULATION</span><span>LAB-DOSED PRECISION</span>
+    <span>COLD EXTRACTION</span><span>SINGLE-ORIGIN BOTANICALS</span><span>SMALL-BATCH FORMULATION</span><span>LAB-DOSED PRECISION</span>
+  </div>
+</div>
+
+<section id="features">
+  <div class="container">
+    <div class="bento-head">
+      <h2 class="reveal">Every formula begins as a <em style="font-style:italic;color:var(--sage-deep);">specimen</em>, not a recipe.</h2>
+      <p class="reveal" style="max-width:340px;">We treat each plant batch as a variable to measure, not a constant to assume.</p>
+    </div>
+    <div class="bento-grid reveal-stagger">
+      <div class="bento-card glass tilt b-1">
+        <span class="num">01 / METHOD</span>
+        <div>
+          <h3>Cold-Press Extraction</h3>
+          <p>Actives are pulled below 18°C to preserve enzyme structure that heat-processing destroys — the difference between a live extract and a dead one.</p>
+        </div>
+      </div>
+      <div class="bento-card glass tilt b-2">
+        <span class="num">02 / SOURCING</span>
+        <h3>Single-Origin Plots</h3>
+        <p>Every leaf is traced to one farm, one harvest week. No blending across seasons or regions.</p>
+      </div>
+      <div class="bento-card glass tilt b-3">
+        <span class="num">03 / TESTING</span>
+        <h3>Spectrometry, Not Guesswork</h3>
+        <p>Each vial is verified for active concentration before it's approved for batching.</p>
+      </div>
+      <div class="bento-card glass tilt b-4">
+        <span class="num">04 / VESSEL</span>
+        <h3>Violet Glass Storage</h3>
+        <p>UV-blocking glass slows oxidation, extending potency far past standard packaging.</p>
+      </div>
+      <div class="bento-card glass tilt b-5">
+        <span class="num">05 / DOSAGE</span>
+        <h3>Consult-Matched Formulas</h3>
+        <p>Your regimen is dosed to your skin's baseline, not a universal percentage.</p>
+      </div>
+      <div class="bento-card glass tilt b-6">
+        <div>
+          <span class="num">06 / TRANSPARENCY</span>
+          <h3>Every INCI, Published</h3>
+          <p style="margin-top:8px;">We list extraction dates and origin plots on every label — nothing proprietary about what's on your skin.</p>
+        </div>
+        <div style="background:linear-gradient(135deg,var(--sage),var(--chlorophyll));border-radius:16px;height:220px;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="horizontal-section" id="process">
+  <div class="h-pin">
+    <div class="h-track" id="hTrack">
+      <div class="h-intro">
+        <div class="eyebrow">The Extraction Timeline</div>
+        <h2>From leaf to<br>vial in five stages.</h2>
+        <p>Scroll to move through our process — the same sequence every batch undergoes before it reaches a consult.</p>
+      </div>
+      <div class="h-card">
+        <span class="idx">STAGE 01</span>
+        <div class="swatch"></div>
+        <h3>Harvest</h3>
+        <p>Leaves are cut at dawn, when chlorophyll concentration peaks before photosynthetic decline.</p>
+      </div>
+      <div class="h-card">
+        <span class="idx">STAGE 02</span>
+        <div class="swatch" style="background:linear-gradient(135deg,#8FB88A,#D8E8D2);"></div>
+        <h3>Cold Extraction</h3>
+        <p>Plant matter is macerated in a low-temperature solvent bath for 14 hours.</p>
+      </div>
+      <div class="h-card">
+        <span class="idx">STAGE 03</span>
+        <div class="swatch" style="background:linear-gradient(135deg,#C9A876,#E4D4B0);"></div>
+        <h3>Filtration</h3>
+        <p>Triple-filtered through cellulose to isolate active compounds from raw cellulose fiber.</p>
+      </div>
+      <div class="h-card">
+        <span class="idx">STAGE 04</span>
+        <div class="swatch" style="background:linear-gradient(135deg,#33492F,#4A6B4F);"></div>
+        <h3>Spectrometry</h3>
+        <p>Each batch is measured for active concentration and logged against our purity threshold.</p>
+      </div>
+      <div class="h-card">
+        <span class="idx">STAGE 05</span>
+        <div class="swatch" style="background:linear-gradient(135deg,#4A6B4F,#8FB88A);"></div>
+        <h3>Vialing</h3>
+        <p>Extract is hand-poured into violet glass and sealed within the hour of testing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="proof">
+  <div class="container reveal">
+    <blockquote>"I've used serums for a decade. This is the first time a label told me the extraction date and I actually understood why it mattered."</blockquote>
+    <cite>— R. Okafor, Client Since 2024</cite>
+  </div>
+</section>
+
+<section style="padding:0;">
+  <div class="cta-band reveal">
+    <h2>Ready to see what<br>your skin is missing?</h2>
+    <a href="contact.html" class="btn magnetic">Book Your Consult <span class="btn-arrow">→</span></a>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<script src="../js/chrome.js"></script>
+<script>mountChrome('home');</script>
+<script src="../js/common.js"></script>
+<script>
+gsap.registerPlugin(ScrollToPlugin);
+
+/* Vial fill animation on load */
+window.addEventListener('load',()=>{
+  gsap.to('#vialLiquid',{
+    attr:{y:70,height:370},
+    duration:2.2,
+    delay:0.4,
+    ease:'power2.inOut'
+  });
+});
+
+/* Horizontal scroll pin */
+const track=document.getElementById('hTrack');
+function getScrollAmount(){
+  return -(track.scrollWidth - window.innerWidth + window.innerWidth*0.08);
+}
+let tween=gsap.to(track,{
+  x:getScrollAmount,
+  ease:'none',
+  scrollTrigger:{
+    trigger:'.horizontal-section',
+    start:'top top',
+    end:()=>`+=${track.scrollWidth}`,
+    scrub:0.6,
+    pin:true,
+    invalidateOnRefresh:true
+  }
+});
+</script>
+</body>
+</html>

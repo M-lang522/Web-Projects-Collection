@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Story — Verdant Lab</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  .about-hero{
+    min-height:88vh;
+    display:flex;
+    align-items:center;
+    padding-top:160px;
+    position:relative;
+  }
+  .about-hero .eyebrow{margin-bottom:20px;}
+  .about-hero h1{
+    font-size:clamp(2.8rem,6vw,5.2rem);
+    max-width:1000px;
+  }
+  .about-hero h1 em{font-style:italic;color:var(--sage-deep);}
+  .about-hero p{font-size:1.15rem;max-width:560px;margin-top:26px;}
+
+  /* Parallax layered image block */
+  .layer-scene{
+    position:relative;
+    height:130vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .layer{
+    position:absolute;
+    border-radius:24px;
+    box-shadow:0 40px 80px -30px rgba(15,28,20,0.35);
+    background-size:cover;
+    background-position:center;
+  }
+  .layer-back{
+    width:46vw;height:60vh;
+    top:8%;left:6%;
+    background:linear-gradient(150deg,#33492F,#4A6B4F);
+  }
+  .layer-mid{
+    width:38vw;height:50vh;
+    top:32%;right:8%;
+    background:linear-gradient(150deg,#8FB88A,#D8E8D2);
+  }
+  .layer-front{
+    width:26vw;height:34vh;
+    bottom:6%;left:32%;
+    background:linear-gradient(150deg,#C9A876,#E4D4B0);
+    display:flex;align-items:center;justify-content:center;
+    z-index:3;
+  }
+  .layer-front .glass-tag{
+    padding:14px 26px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.8rem;
+    letter-spacing:.06em;
+  }
+
+  /* Timeline */
+  .timeline-section{background:var(--paper);}
+  .timeline{
+    position:relative;
+    max-width:900px;
+    margin:0 auto;
+    padding-left:40px;
+    border-left:1px solid rgba(15,28,20,0.15);
+  }
+  .t-item{
+    position:relative;
+    padding-bottom:90px;
+  }
+  .t-item:last-child{padding-bottom:0;}
+  .t-item::before{
+    content:"";
+    position:absolute;
+    left:-45px;top:6px;
+    width:11px;height:11px;
+    border-radius:50%;
+    background:var(--grain-white);
+    border:2px solid var(--sage);
+  }
+  .t-year{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    color:var(--sage);
+    letter-spacing:.08em;
+    margin-bottom:10px;
+    display:block;
+  }
+  .t-item h3{font-size:1.9rem;margin-bottom:12px;}
+  .t-item p{max-width:560px;}
+
+  /* Team flip cards */
+  .team-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:26px;
+  }
+  .flip-card{
+    perspective:1400px;
+    height:400px;
+  }
+  .flip-inner{
+    position:relative;
+    width:100%;height:100%;
+    transition:transform .8s var(--ease);
+    transform-style:preserve-3d;
+  }
+  .flip-card:hover .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{
+    position:absolute;inset:0;
+    backface-visibility:hidden;
+    border-radius:20px;
+    padding:28px;
+    display:flex;flex-direction:column;
+  }
+  .flip-front{
+    background:linear-gradient(165deg,var(--chlorophyll),var(--grain-white));
+    justify-content:flex-end;
+    border:1px solid rgba(15,28,20,0.08);
+  }
+  .flip-front .avatar{
+    width:64px;height:64px;border-radius:50%;
+    background:linear-gradient(135deg,var(--sage),var(--mint-glass));
+    margin-bottom:auto;
+  }
+  .flip-front h4{font-size:1.25rem;margin-bottom:4px;}
+  .flip-front span{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--sage);}
+  .flip-back{
+    background:var(--ink);
+    color:var(--chlorophyll);
+    transform:rotateY(180deg);
+    justify-content:center;
+  }
+  .flip-back h4{color:var(--grain-white);font-size:1.2rem;margin-bottom:14px;}
+  .flip-back p{color:rgba(216,232,210,0.8);font-size:0.9rem;}
+
+  @media (max-width:900px){
+    .layer-scene{height:80vh;}
+    .layer-back{width:80vw;height:40vh;left:10vw;}
+    .layer-mid{width:70vw;height:34vh;right:5vw;}
+    .layer-front{width:60vw;height:24vh;left:20vw;}
+    .team-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="page-loader"><div class="mono">STEEPING…</div></div>
+
+<section class="about-hero">
+  <div class="container">
+    <div class="eyebrow reveal">Founded 2021, Kyoto</div>
+    <h1 class="reveal">We started in a rented lab bench, obsessed with one question: <em>why does extraction temperature change everything?</em></h1>
+    <p class="reveal">Verdant Lab began as a side experiment between a formulation chemist and a botanist tired of skincare that treated plants as marketing, not chemistry.</p>
+  </div>
+</section>
+
+<section class="layer-scene" id="parallax-scene">
+  <div class="layer layer-back" data-speed="0.15"></div>
+  <div class="layer layer-mid" data-speed="0.35"></div>
+  <div class="layer layer-front" data-speed="0.55">
+    <div class="glass-tag">FIRST BATCH — MARCH 2021</div>
+  </div>
+</section>
+
+<section class="timeline-section">
+  <div class="container">
+    <div class="eyebrow reveal" style="margin-bottom:20px;">The Timeline</div>
+    <h2 class="reveal" style="font-size:clamp(2.2rem,4vw,3.2rem);max-width:600px;margin-bottom:80px;">Five years, one obsession, still unfinished.</h2>
+    <div class="timeline reveal-stagger">
+      <div class="t-item">
+        <span class="t-year">2021</span>
+        <h3>A Rented Bench</h3>
+        <p>Two founders, one cold-extraction rig, and a single plot of shiso leaf. The first batch yielded eleven vials — none of them sold.</p>
+      </div>
+      <div class="t-item">
+        <span class="t-year">2022</span>
+        <h3>The Spectrometer</h3>
+        <p>We bought our first UV-Vis spectrometer secondhand, finally able to measure what we'd only been guessing at for a year.</p>
+      </div>
+      <div class="t-item">
+        <span class="t-year">2023</span>
+        <h3>Portland Studio Opens</h3>
+        <p>A second extraction site, chosen for its climate — cooler, wetter, better suited to the leafy botanicals we'd started sourcing.</p>
+      </div>
+      <div class="t-item">
+        <span class="t-year">2024</span>
+        <h3>Published INCI Standard</h3>
+        <p>We committed to listing extraction dates and origin plots on every label, a first for the category at our scale.</p>
+      </div>
+      <div class="t-item">
+        <span class="t-year">2026</span>
+        <h3>Batch 2026.07</h3>
+        <p>Our fourteenth consecutive quarter of single-origin sourcing, now serving consult clients across two continents.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="eyebrow reveal" style="margin-bottom:20px;">The People</div>
+    <h2 class="reveal" style="font-size:clamp(2.2rem,4vw,3.2rem);max-width:600px;margin-bottom:60px;">Small team. Every formula passes through all four of us.</h2>
+    <div class="team-grid reveal-stagger">
+      <div class="flip-card">
+        <div class="flip-inner">
+          <div class="flip-front glass">
+            <div class="avatar"></div>
+            <h4>Mira Sato</h4>
+            <span>FOUNDER, FORMULATION</span>
+          </div>
+          <div class="flip-back">
+            <h4>Mira Sato</h4>
+            <p>Trained as a cosmetic chemist in Osaka; obsessed with extraction temperature curves and the chemistry of chlorophyll stability.</p>
+          </div>
+        </div>
+      </div>
+      <div class="flip-card">
+        <div class="flip-inner">
+          <div class="flip-front glass">
+            <div class="avatar"></div>
+            <h4>Dev Anand</h4>
+            <span>CO-FOUNDER, SOURCING</span>
+          </div>
+          <div class="flip-back">
+            <h4>Dev Anand</h4>
+            <p>Spends half the year visiting single-origin farms, building the direct relationships that keep our supply chain traceable to one field.</p>
+          </div>
+        </div>
+      </div>
+      <div class="flip-card">
+        <div class="flip-inner">
+          <div class="flip-front glass">
+            <div class="avatar"></div>
+            <h4>Elin Voss</h4>
+            <span>LAB DIRECTOR</span>
+          </div>
+          <div class="flip-back">
+            <h4>Elin Voss</h4>
+            <p>Runs spectrometry on every batch before it's cleared for vialing — the last checkpoint before a formula reaches a client.</p>
+          </div>
+        </div>
+      </div>
+      <div class="flip-card">
+        <div class="flip-inner">
+          <div class="flip-front glass">
+            <div class="avatar"></div>
+            <h4>Priya Nair</h4>
+            <span>CLIENT CONSULTS</span>
+          </div>
+          <div class="flip-back">
+            <h4>Priya Nair</h4>
+            <p>Matches each client's skin baseline to a dosing plan — the bridge between the lab bench and the person wearing the result.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band" style="background:linear-gradient(135deg,#33492F,#4A6B4F);color:#FBFAF6;text-align:center;border-radius:0;">
+  <div class="reveal">
+    <h2 style="color:#FBFAF6;font-size:clamp(2.4rem,5vw,4rem);max-width:800px;margin:0 auto 40px;">Curious how we'd dose your regimen?</h2>
+    <a href="contact.html" class="btn magnetic" style="background:#FBFAF6;color:#0F1C14;">Book Your Consult <span class="btn-arrow">→</span></a>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<script src="../js/chrome.js"></script>
+<script>mountChrome('about');</script>
+<script src="../js/common.js"></script>
+<script>
+gsap.registerPlugin(ScrollToPlugin);
+/* Parallax layers */
+document.querySelectorAll('.layer').forEach(layer=>{
+  const speed=parseFloat(layer.dataset.speed);
+  gsap.to(layer,{
+    y:()=> -300*speed,
+    ease:'none',
+    scrollTrigger:{
+      trigger:'#parallax-scene',
+      start:'top bottom',
+      end:'bottom top',
+      scrub:0.5
+    }
+  });
+});
+</script>
+</body>
+</html>
