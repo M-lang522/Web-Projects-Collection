@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emberwood — Slow-Roasted Single Origin</title>
+<meta name="description" content="Emberwood is a small-batch specialty coffee roastery. Single origin lots, roasted in lots of twelve kilograms, cupped before every release.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+  /* ============================================================
+     TOKENS
+  ============================================================ */
+  :root{
+    --paper: #FBFBFB;
+    --cream: #F1E7D9;
+    --espresso: #2C1810;
+    --espresso-soft: #3B241A;
+    --caramel: #C88A58;
+    --bronze: #A9723F;
+    --gold-line: rgba(200,138,88,.35);
+    --ink-70: rgba(44,24,16,.7);
+    --ink-50: rgba(44,24,16,.5);
+    --paper-70: rgba(251,251,251,.7);
+
+    --serif: "Fraunces", "Iowan Old Style", serif;
+    --sans: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+
+    --ease: cubic-bezier(.16,.84,.24,1);
+    --container: 1240px;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  html,body{ background:var(--paper); }
+
+  body{
+    font-family: var(--sans);
+    color: var(--espresso);
+    background: var(--paper);
+    overflow-x:hidden;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  img{ max-width:100%; display:block; }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--espresso); color:var(--cream); }
+
+  .wrap{ max-width:var(--container); margin:0 auto; padding:0 6vw; }
+
+  /* fine grain overlay for texture across whole site */
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:2000; pointer-events:none;
+    opacity:.035; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+  }
+
+  /* ============================================================
+     CUSTOM CURSOR (signature detail)
+  ============================================================ */
+  .cursor-dot, .cursor-ring{
+    position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    will-change:transform;
+  }
+  .cursor-dot{ width:6px; height:6px; background:var(--espresso); }
+  .cursor-ring{
+    width:38px; height:38px;
+    border:1px solid var(--bronze);
+    transition: width .3s var(--ease), height .3s var(--ease), border-color .3s var(--ease), background .3s var(--ease);
+  }
+  .cursor-ring.hover{ width:70px; height:70px; background:rgba(200,138,88,.12); border-color:var(--caramel); }
+  .cursor-ring.dark{ border-color:var(--cream); background:rgba(251,251,251,.08); }
+  @media (hover:none), (pointer:coarse){ .cursor-dot, .cursor-ring{ display:none; } }
+
+  /* ============================================================
+     PRELOADER
+  ============================================================ */
+  #preloader{
+    position:fixed; inset:0; z-index:10000;
+    background:var(--espresso); color:var(--cream);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.2rem;
+  }
+  #preloader .pre-label{ font-family:var(--mono); font-size:.72rem; letter-spacing:.28em; text-transform:uppercase; color:var(--caramel); }
+  #preloader .pre-count{ font-family:var(--serif); font-weight:400; font-size:clamp(3rem,10vw,6rem); font-variant-numeric:tabular-nums; }
+  #preloader .pre-bar{ width:min(60vw,320px); height:1px; background:rgba(251,251,251,.18); position:relative; overflow:hidden; }
+  #preloader .pre-bar span{ position:absolute; inset:0; width:0%; background:var(--caramel); }
+
+  /* ============================================================
+     NAV
+  ============================================================ */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:900;
+    padding: 1.6rem 0;
+    transition: padding .4s var(--ease), background .4s var(--ease), backdrop-filter .4s var(--ease), border-color .4s var(--ease);
+    border-bottom:1px solid transparent;
+  }
+  header.scrolled{
+    padding: 1rem 0;
+    background: rgba(251,251,251,.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom:1px solid var(--gold-line);
+  }
+  nav{ display:flex; align-items:center; justify-content:space-between; }
+  .logo{
+    font-family:var(--serif); font-weight:500; font-size:1.25rem; letter-spacing:.02em;
+    display:flex; align-items:center; gap:.55rem;
+  }
+  .logo .mark{ width:9px; height:9px; border-radius:50%; background:var(--caramel); display:inline-block; }
+  .nav-links{ display:flex; align-items:center; gap:2.4rem; font-size:.85rem; }
+  .nav-links a{ position:relative; padding:.2rem 0; }
+  .nav-links a::after{
+    content:""; position:absolute; left:0; bottom:-2px; width:100%; height:1px; background:var(--espresso);
+    transform:scaleX(0); transform-origin:right; transition:transform .4s var(--ease);
+  }
+  .nav-links a:hover::after{ transform:scaleX(1); transform-origin:left; }
+  .nav-cta{
+    border:1px solid var(--espresso); padding:.6rem 1.3rem; border-radius:2px;
+    font-size:.78rem; letter-spacing:.04em; transition:background .35s var(--ease), color .35s var(--ease);
+  }
+  .nav-cta:hover{ background:var(--espresso); color:var(--cream); }
+  .nav-toggle{ display:none; }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  .hero{
+    position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end;
+    padding-top: 9rem; padding-bottom:3rem; overflow:hidden;
+    background:
+      radial-gradient(ellipse at 78% 18%, rgba(200,138,88,.22), transparent 55%),
+      linear-gradient(180deg, var(--paper) 0%, var(--paper) 78%, var(--cream) 100%);
+  }
+  .hero-bg-img{
+    position:absolute; top:-6%; right:-6%; width:46%; height:80%;
+    border-radius:4px; overflow:hidden; opacity:.92;
+  }
+  .hero-bg-img img{ width:100%; height:100%; object-fit:cover; transform:scale(1.15); }
+  .hero-bg-img::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 40%, rgba(44,24,16,.35));
+  }
+  .hero-eyebrow{
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.32em; text-transform:uppercase;
+    color:var(--bronze); display:flex; align-items:center; gap:.8rem; margin-bottom:1.6rem;
+  }
+  .hero-eyebrow::before{ content:""; width:34px; height:1px; background:var(--bronze); display:inline-block; }
+  .hero-title{
+    font-family:var(--serif); font-weight:400; line-height:.96;
+    font-size: clamp(3rem, 8.6vw, 8rem);
+    max-width:15ch; letter-spacing:-.01em;
+  }
+  .hero-title .line{ overflow:hidden; display:block; }
+  .hero-title .line span{ display:inline-block; will-change:transform; }
+  .hero-title em{ font-style:italic; font-weight:400; color:var(--caramel); }
+  .hero-foot{
+    margin-top:3.2rem; display:flex; justify-content:space-between; align-items:flex-end; gap:2rem; flex-wrap:wrap;
+  }
+  .hero-desc{ max-width:34ch; color:var(--ink-70); font-size:1.02rem; }
+  .scroll-cue{
+    display:flex; align-items:center; gap:.7rem; font-family:var(--mono); font-size:.68rem;
+    letter-spacing:.2em; text-transform:uppercase; color:var(--ink-50);
+  }
+  .scroll-cue .bar{ width:1px; height:42px; background:var(--ink-50); position:relative; overflow:hidden; }
+  .scroll-cue .bar span{ position:absolute; top:-100%; left:0; width:100%; height:100%; background:var(--espresso); animation: scrollcue 1.8s ease-in-out infinite; }
+  @keyframes scrollcue{ 0%{top:-100%} 50%{top:0} 100%{top:100%} }
+
+  /* ============================================================
+     SECTION SHARED
+  ============================================================ */
+  section{ position:relative; }
+  .section-pad{ padding: clamp(5rem,10vw,9rem) 0; }
+  .eyebrow{
+    font-family:var(--mono); font-size:.7rem; letter-spacing:.3em; text-transform:uppercase; color:var(--bronze);
+    margin-bottom:1.4rem; display:block;
+  }
+  .h2{
+    font-family:var(--serif); font-weight:400; font-size:clamp(2.2rem,4.6vw,4rem); line-height:1.06; letter-spacing:-.01em;
+  }
+  .h2 em{ font-style:italic; color:var(--caramel); }
+  .reveal{ opacity:0; transform:translateY(46px); }
+  .reveal-mask{ overflow:hidden; }
+  .reveal-mask img, .reveal-mask .fill{ transform:scale(1.22) translateY(2%); }
+
+  /* ============================================================
+     STORY
+  ============================================================ */
+  .story{ background:var(--paper); }
+  .story-grid{ display:grid; grid-template-columns: .95fr 1.05fr; gap:5vw; align-items:center; }
+  .story-img{ border-radius:3px; aspect-ratio:4/5; }
+  .story-img img{ width:100%; height:100%; object-fit:cover; }
+  .story-copy p{ color:var(--ink-70); font-size:1.06rem; margin-top:1.3rem; max-width:46ch; }
+  .story-copy p.lead::first-letter{
+    font-family:var(--serif); font-size:3.6rem; float:left; line-height:.8; padding:.1rem .5rem 0 0; color:var(--espresso);
+  }
+  .story-stats{ display:flex; gap:2.6rem; margin-top:2.6rem; flex-wrap:wrap; }
+  .story-stats div{ font-family:var(--mono); }
+  .story-stats .num{ font-family:var(--serif); font-size:1.9rem; display:block; color:var(--espresso); }
+  .story-stats .label{ font-size:.66rem; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-50); }
+
+  /* -------- Roast scrubber: the signature scroll-driven element -------- */
+  .roast-scrubber{
+    margin-top: 6rem; padding-top:4rem; border-top:1px solid var(--gold-line);
+  }
+  .roast-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:2.6rem; flex-wrap:wrap; gap:1rem; }
+  .roast-readout{ display:flex; gap:2.4rem; font-family:var(--mono); font-size:.78rem; color:var(--ink-70); }
+  .roast-readout b{ font-family:var(--serif); font-size:1.3rem; font-weight:500; color:var(--espresso); display:block; }
+  .roast-track{
+    position:relative; height:150px; border-radius:2px;
+    background: linear-gradient(90deg, #B7C77E 0%, #D9B24C 22%, #C88A58 46%, #8A5A34 70%, #4A2E1E 88%, #2C1810 100%);
+  }
+  .roast-track .roast-bean{
+    position:absolute; top:50%; left:0%; width:26px; height:34px; transform:translate(-50%,-50%);
+    background:var(--paper); border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: 0 6px 18px rgba(44,24,16,.35);
+  }
+  .roast-track .roast-bean::after{
+    content:""; position:absolute; top:8%; left:50%; width:1.5px; height:84%; background:rgba(44,24,16,.35); transform:translateX(-50%);
+  }
+  .roast-stages{ display:flex; justify-content:space-between; margin-top:1rem; font-family:var(--mono); font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-50); }
+  .roast-stages span{ transition:color .3s; }
+  .roast-stages span.active{ color:var(--espresso); font-weight:500; }
+
+  /* ============================================================
+     FEATURES
+  ============================================================ */
+  .features{ background:var(--cream); }
+  .features-head{ max-width:60ch; margin-bottom:4rem; }
+  .feature-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.3px; background:var(--gold-line); border:1px solid var(--gold-line); border-radius:4px; overflow:hidden; }
+  .feature-card{
+    background:rgba(251,251,251,.6);
+    backdrop-filter: blur(10px);
+    padding:2.4rem 1.8rem; position:relative; min-height:340px; display:flex; flex-direction:column;
+    transition: background .4s var(--ease);
+  }
+  .feature-card:hover{ background:rgba(251,251,251,.92); }
+  .feature-icon{ width:38px; height:38px; margin-bottom:2.2rem; }
+  .feature-card h3{ font-family:var(--serif); font-weight:500; font-size:1.3rem; margin-bottom:.7rem; }
+  .feature-card p{ color:var(--ink-70); font-size:.9rem; flex-grow:1; }
+  .feature-data{ font-family:var(--mono); font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--bronze); margin-top:1.6rem; padding-top:1rem; border-top:1px solid var(--gold-line); }
+  .feature-data b{ display:block; font-family:var(--serif); font-size:1.5rem; color:var(--espresso); font-weight:400; text-transform:none; letter-spacing:0; }
+
+  /* ============================================================
+     GALLERY — horizontal scroll-snap
+  ============================================================ */
+  .gallery{ background:var(--paper); overflow:hidden; }
+  .gallery-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:3rem; flex-wrap:wrap; gap:1rem; }
+  .gallery-track{
+    display:flex; gap:1.6vw; overflow-x:auto; scroll-snap-type:x proximity; padding-bottom:1.4rem;
+    scrollbar-width:none;
+  }
+  .gallery-track::-webkit-scrollbar{ display:none; }
+  .gallery-item{
+    scroll-snap-align:start; flex:0 0 auto; width:min(64vw,460px);
+    position:relative; border-radius:3px; overflow:hidden;
+  }
+  .gallery-item.tall{ width:min(38vw,300px); }
+  .gallery-item .frame{ aspect-ratio:3/4; overflow:hidden; }
+  .gallery-item img{ width:100%; height:100%; object-fit:cover; transition:transform .8s var(--ease); }
+  .gallery-item:hover img{ transform:scale(1.06); }
+  .gallery-cap{ display:flex; justify-content:space-between; margin-top:.9rem; font-family:var(--mono); font-size:.68rem; letter-spacing:.05em; color:var(--ink-50); }
+  .gallery-cap b{ color:var(--espresso); font-family:var(--sans); font-size:.82rem; font-weight:600; letter-spacing:0; text-transform:none; }
+  .gallery-progress{ height:1px; background:var(--gold-line); margin-top:2.6rem; position:relative; }
+  .gallery-progress span{ position:absolute; top:0; left:0; height:100%; background:var(--espresso); width:20%; }
+
+  /* ============================================================
+     TESTIMONIALS
+  ============================================================ */
+  .testimonials{ background:var(--espresso); color:var(--cream); }
+  .testi-wrap{ position:relative; min-height:360px; }
+  .testi-slide{
+    position:absolute; inset:0; opacity:0; pointer-events:none; transition:opacity .7s var(--ease);
+  }
+  .testi-slide.active{ opacity:1; pointer-events:auto; }
+  .testi-quote{
+    font-family:var(--serif); font-weight:400; font-style:italic; font-size:clamp(1.5rem,3.4vw,2.6rem);
+    line-height:1.28; max-width:24ch; color:var(--paper);
+  }
+  .testi-person{ display:flex; align-items:center; gap:1rem; margin-top:2.4rem; }
+  .testi-person img{ width:50px; height:50px; border-radius:50%; object-fit:cover; }
+  .testi-name{ font-weight:600; font-size:.92rem; }
+  .testi-role{ font-family:var(--mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--caramel); }
+  .testi-controls{ display:flex; gap:1rem; margin-top:3.4rem; align-items:center; }
+  .testi-dot{ width:7px; height:7px; border-radius:50%; background:rgba(251,251,251,.28); cursor:pointer; transition:background .3s, transform .3s; }
+  .testi-dot.active{ background:var(--caramel); transform:scale(1.3); }
+  .testi-arrows{ margin-left:auto; display:flex; gap:.8rem; }
+  .testi-arrow{ width:44px; height:44px; border-radius:50%; border:1px solid rgba(251,251,251,.25); display:flex; align-items:center; justify-content:center; transition:background .3s, border-color .3s; }
+  .testi-arrow:hover{ background:rgba(251,251,251,.08); border-color:var(--caramel); }
+
+  /* ============================================================
+     CTA STRIP
+  ============================================================ */
+  .cta-strip{ background:var(--cream); text-align:center; padding: clamp(5rem,11vw,8rem) 0; }
+  .cta-strip .h2{ max-width:16ch; margin:0 auto 2.2rem; }
+  .btn-primary{
+    display:inline-flex; align-items:center; gap:.8rem; background:var(--espresso); color:var(--cream);
+    padding:1rem 2.1rem; border-radius:2px; font-size:.85rem; letter-spacing:.03em; overflow:hidden; position:relative;
+  }
+  .btn-primary span.arrow{ transition:transform .4s var(--ease); }
+  .btn-primary:hover span.arrow{ transform:translateX(6px); }
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+  footer{ background:var(--espresso); color:var(--cream); padding-top: clamp(4rem,8vw,6rem); }
+  .footer-top{ display:grid; grid-template-columns: 1.4fr .8fr .8fr 1fr; gap:3rem; padding-bottom:4rem; border-bottom:1px solid rgba(251,251,251,.14); }
+  .footer-brand .logo{ color:var(--cream); }
+  .footer-brand .logo .mark{ background:var(--caramel); }
+  .footer-brand p{ margin-top:1.2rem; color:rgba(251,251,251,.6); max-width:32ch; font-size:.9rem; }
+  .footer-col h4{ font-family:var(--mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--caramel); margin-bottom:1.2rem; }
+  .footer-col a{ display:block; color:rgba(251,251,251,.72); font-size:.9rem; padding:.35rem 0; transition:color .3s, transform .3s; width:fit-content; }
+  .footer-col a:hover{ color:var(--paper); transform:translateX(4px); }
+  .footer-form{ display:flex; border-bottom:1px solid rgba(251,251,251,.35); padding-bottom:.7rem; margin-top:.6rem; }
+  .footer-form input{ background:none; border:none; color:var(--cream); font-family:var(--sans); font-size:.9rem; flex-grow:1; outline:none; }
+  .footer-form input::placeholder{ color:rgba(251,251,251,.4); }
+  .footer-form button{ background:none; border:none; color:var(--caramel); font-family:var(--mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
+  .footer-bottom{ display:flex; justify-content:space-between; align-items:center; padding:2rem 0; font-family:var(--mono); font-size:.7rem; color:rgba(251,251,251,.45); flex-wrap:wrap; gap:1rem; }
+  .footer-mega{
+    font-family:var(--serif); font-weight:400; font-size:clamp(3rem,13vw,11rem); line-height:.86; letter-spacing:-.02em;
+    color:transparent; -webkit-text-stroke:1px rgba(251,251,251,.28); text-align:center; padding: 1.4rem 0 0;
+    user-select:none;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+  ============================================================ */
+  @media (max-width:980px){
+    .story-grid{ grid-template-columns:1fr; gap:3rem; }
+    .feature-grid{ grid-template-columns:repeat(2,1fr); }
+    .footer-top{ grid-template-columns:1fr 1fr; gap:2.4rem; }
+  }
+  @media (max-width:720px){
+    .nav-links{ display:none; }
+    .hero-bg-img{ width:60%; height:46%; top:6%; right:-8%; opacity:.55; }
+    .hero-foot{ flex-direction:column; align-items:flex-start; gap:1.6rem; }
+    .feature-grid{ grid-template-columns:1fr; }
+    .footer-top{ grid-template-columns:1fr; gap:2.2rem; }
+    .roast-track{ height:110px; }
+    .roast-readout{ gap:1.4rem; flex-wrap:wrap; }
+    .gallery-item{ width:78vw; }
+    .gallery-item.tall{ width:52vw; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <div id="preloader">
+    <span class="pre-label">Roasting</span>
+    <span class="pre-count" id="preCount">0%</span>
+    <div class="pre-bar"><span id="preBar"></span></div>
+  </div>
+
+  <header id="siteHeader">
+    <nav class="wrap">
+      <a href="#top" class="logo"><span class="mark"></span>Emberwood</a>
+      <div class="nav-links">
+        <a href="#story" data-hover>Story</a>
+        <a href="#features" data-hover>The Roast</a>
+        <a href="#gallery" data-hover>Atelier</a>
+        <a href="#testimonials" data-hover>Cupping Notes</a>
+      </div>
+      <a href="#visit" class="nav-cta" data-hover>Reserve a Cupping</a>
+    </nav>
+  </header>
+
+  <main id="top">
+
+    <!-- ============================================================
+         HERO
+    ============================================================ -->
+    <section class="hero">
+      <div class="hero-bg-img reveal-mask">
+        <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=1200&auto=format&fit=crop" alt="Coffee beans in a roasting drum">
+      </div>
+      <div class="wrap">
+        <p class="hero-eyebrow">Est. in a single garage roaster, 2014</p>
+        <h1 class="hero-title" id="heroTitle">
+          <span class="line"><span>Slow roasted,</span></span>
+          <span class="line"><span><em>fast</em> obsession.</span></span>
+        </h1>
+        <div class="hero-foot">
+          <p class="hero-desc">Emberwood roasts single-origin lots twelve kilograms at a time, cupped three times before a bag ever leaves the drum room.</p>
+          <div class="scroll-cue"><div class="bar"><span></span></div>Scroll</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         STORY
+    ============================================================ -->
+    <section class="story section-pad" id="story">
+      <div class="wrap">
+        <div class="story-grid">
+          <div class="story-img reveal-mask reveal">
+            <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=1000&auto=format&fit=crop" alt="Roaster checking green coffee beans">
+          </div>
+          <div class="story-copy">
+            <span class="eyebrow">The Story</span>
+            <h2 class="h2 reveal">A drum, a <em>notebook</em>, and one stubborn question.</h2>
+            <p class="lead reveal">Emberwood began as a question our founder couldn't put down: why did the coffee taste different every time, even from the same farm? Three years of failed batches later, the answer turned out to be patience.</p>
+            <p class="reveal">Every lot we roast is logged by hand — bean temperature, ambient humidity, the sound of first crack — then cupped blind against the batch before it. If it doesn't beat the last one, it doesn't leave the room.</p>
+            <div class="story-stats">
+              <div class="reveal"><span class="num">417</span><span class="label">Lots roasted, 2025</span></div>
+              <div class="reveal"><span class="num">6</span><span class="label">Origin farms, direct trade</span></div>
+              <div class="reveal"><span class="num">3×</span><span class="label">Cupped before release</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- signature scroll-driven roast scrubber -->
+        <div class="roast-scrubber">
+          <div class="roast-head">
+            <div>
+              <span class="eyebrow" style="margin-bottom:.4rem;">Live Roast Log — Lot №417, Yirgacheffe</span>
+              <h3 class="h2" style="font-size:clamp(1.6rem,2.6vw,2.2rem);">Scroll to follow the drum.</h3>
+            </div>
+            <div class="roast-readout">
+              <div><b id="roastTemp">21°C</b>Bean temp</div>
+              <div><b id="roastTime">0:00</b>Elapsed</div>
+              <div><b id="roastStage">Green</b>Stage</div>
+            </div>
+          </div>
+          <div class="roast-track">
+            <div class="roast-bean" id="roastBean"></div>
+          </div>
+          <div class="roast-stages">
+            <span data-stage="Green">Green</span>
+            <span data-stage="Yellowing">Yellowing</span>
+            <span data-stage="First Crack">First Crack</span>
+            <span data-stage="City Roast">City Roast</span>
+            <span data-stage="Full City">Full City</span>
+            <span data-stage="Dark">Dark</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         FEATURES
+    ============================================================ -->
+    <section class="features section-pad" id="features">
+      <div class="wrap">
+        <div class="features-head">
+          <span class="eyebrow">The Roast</span>
+          <h2 class="h2 reveal">Four decisions we don't compromise on.</h2>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card reveal">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="var(--espresso)" stroke-width="1.1"><path d="M4 20c1-6 2-9 8-9s7 3 8 9"/><circle cx="12" cy="7" r="4"/></svg>
+            <h3>Direct Origin</h3>
+            <p>We buy six lots a year, in person, at prices set before the harvest — not after the market moves.</p>
+            <div class="feature-data">Avg. altitude<b>1,940m</b></div>
+          </div>
+          <div class="feature-card reveal">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="var(--espresso)" stroke-width="1.1"><path d="M4 4v10a8 8 0 0016 0V4"/><path d="M4 4h16"/></svg>
+            <h3>Small Drums</h3>
+            <p>Twelve kilograms per batch — small enough that one roaster can taste the difference a single degree makes.</p>
+            <div class="feature-data">Batch size<b>12kg</b></div>
+          </div>
+          <div class="feature-card reveal">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="var(--espresso)" stroke-width="1.1"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+            <h3>Cupped Blind</h3>
+            <p>Three cuppers score every lot without seeing the roast log first. Anything under 86 gets sent back to the drum.</p>
+            <div class="feature-data">Avg. cupping score<b>87.5</b></div>
+          </div>
+          <div class="feature-card reveal">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="var(--espresso)" stroke-width="1.1"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+            <h3>Roasted To Ship</h3>
+            <p>Beans leave the roastery within 48 hours of roasting — never before, so the rest gas has time to settle.</p>
+            <div class="feature-data">Ships within<b>48 hrs</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         GALLERY
+    ============================================================ -->
+    <section class="gallery section-pad" id="gallery">
+      <div class="wrap">
+        <div class="gallery-head">
+          <div>
+            <span class="eyebrow">The Atelier</span>
+            <h2 class="h2 reveal">Inside the drum room.</h2>
+          </div>
+          <p style="max-width:32ch;color:var(--ink-70);">Drag, or scroll sideways — the room where every lot earns its bag.</p>
+        </div>
+      </div>
+      <div class="gallery-track wrap" id="galleryTrack">
+        <div class="gallery-item">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=900&auto=format&fit=crop" alt="Roaster inspecting beans"></div>
+          <div class="gallery-cap"><b>The Cupping Table</b><span>01 / 05</span></div>
+        </div>
+        <div class="gallery-item tall">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1524350876685-274059332603?q=80&w=700&auto=format&fit=crop" alt="Green coffee beans close up"></div>
+          <div class="gallery-cap"><b>Green Lot, Yirgacheffe</b><span>02 / 05</span></div>
+        </div>
+        <div class="gallery-item">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=900&auto=format&fit=crop" alt="Coffee roasting drum machine"></div>
+          <div class="gallery-cap"><b>The Drum, Mid-Roast</b><span>03 / 05</span></div>
+        </div>
+        <div class="gallery-item tall">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1442550528053-c431ecb55509?q=80&w=700&auto=format&fit=crop" alt="Hand pouring coffee beans"></div>
+          <div class="gallery-cap"><b>Sorting By Hand</b><span>04 / 05</span></div>
+        </div>
+        <div class="gallery-item">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1521302080334-4bebac2763a6?q=80&w=900&auto=format&fit=crop" alt="Barista pouring coffee"></div>
+          <div class="gallery-cap"><b>The Pour, Bag 417</b><span>05 / 05</span></div>
+        </div>
+      </div>
+      <div class="wrap"><div class="gallery-progress"><span id="galleryProgress"></span></div></div>
+    </section>
+
+    <!-- ============================================================
+         TESTIMONIALS
+    ============================================================ -->
+    <section class="testimonials section-pad" id="testimonials">
+      <div class="wrap">
+        <span class="eyebrow" style="color:var(--caramel);">Cupping Notes</span>
+        <div class="testi-wrap" id="testiWrap">
+          <div class="testi-slide active">
+            <p class="testi-quote">"Emberwood is the only roaster whose bags I keep just to reread the log notes. The Yirgacheffe tastes like they promised it would, three weeks running."</p>
+            <div class="testi-person">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop" alt="Portrait of Alma Reyes">
+              <div><div class="testi-name">Alma Reyes</div><div class="testi-role">Head Chef, Farrow & Salt</div></div>
+            </div>
+          </div>
+          <div class="testi-slide">
+            <p class="testi-quote">"I've bought from a dozen roasters. Emberwood is the first that made me care what 'first crack' even means. You can taste the twelve-kilo batches."</p>
+            <div class="testi-person">
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop" alt="Portrait of Dev Kapoor">
+              <div><div class="testi-name">Dev Kapoor</div><div class="testi-role">Owner, Kapoor & Sons Roastery Bar</div></div>
+            </div>
+          </div>
+          <div class="testi-slide">
+            <p class="testi-quote">"Their cupping score is printed right on the bag, right next to the date it was roasted. That kind of honesty is rare, and it's why we only pour Emberwood now."</p>
+            <div class="testi-person">
+              <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=200&auto=format&fit=crop" alt="Portrait of Nora Bergström">
+              <div><div class="testi-name">Nora Bergström</div><div class="testi-role">Barista Champion, 2024</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-controls">
+          <span class="testi-dot active" data-i="0"></span>
+          <span class="testi-dot" data-i="1"></span>
+          <span class="testi-dot" data-i="2"></span>
+          <div class="testi-arrows">
+            <div class="testi-arrow" id="testiPrev" data-hover-dark>&larr;</div>
+            <div class="testi-arrow" id="testiNext" data-hover-dark>&rarr;</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CTA
+    ============================================================ -->
+    <section class="cta-strip" id="visit">
+      <div class="wrap">
+        <span class="eyebrow">Visit</span>
+        <h2 class="h2 reveal">Come taste a batch before it ships.</h2>
+        <a href="#" class="btn-primary" data-hover>Reserve a cupping seat <span class="arrow">&rarr;</span></a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#top" class="logo"><span class="mark"></span>Emberwood</a>
+          <p>A small-batch roastery working directly with six origin farms. Twelve kilograms at a time, cupped before it ships.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Visit</h4>
+          <a href="#" data-hover>19 Drum Lane, Portland</a>
+          <a href="#" data-hover>Tue–Sat, 8am–4pm</a>
+          <a href="#" data-hover>Cupping bar, walk-ins</a>
+        </div>
+        <div class="footer-col">
+          <h4>Explore</h4>
+          <a href="#story" data-hover>Our Story</a>
+          <a href="#features" data-hover>The Roast</a>
+          <a href="#gallery" data-hover>The Atelier</a>
+        </div>
+        <div class="footer-col">
+          <h4>Roast Notes, Monthly</h4>
+          <p style="color:rgba(251,251,251,.6);font-size:.85rem;">One email a month — the log notes from our best-cupped lot.</p>
+          <div class="footer-form">
+            <input type="email" placeholder="you@email.com">
+            <button type="button" data-hover-dark>Subscribe</button>
+          </div>
+        </div>
+      </div>
+      <div class="footer-mega">EMBERWOOD</div>
+      <div class="footer-bottom">
+        <span>© 2026 Emberwood Roastery</span>
+        <span>Portland, Oregon</span>
+      </div>
+    </div>
+  </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  gsap.registerPlugin(ScrollTrigger);
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------------------------------------------------
+     PRELOADER
+  --------------------------------------------------------- */
+  const preloader = document.getElementById('preloader');
+  const preCount = document.getElementById('preCount');
+  const preBar = document.getElementById('preBar');
+  let pct = { v: 0 };
+  gsap.to(pct, {
+    v: 100, duration: reduceMotion ? 0.2 : 1.6, ease: 'power2.inOut',
+    onUpdate: () => {
+      const val = Math.round(pct.v);
+      preCount.textContent = val + '%';
+      preBar.style.width = val + '%';
+    },
+    onComplete: () => {
+      gsap.to(preloader, {
+        yPercent: -100, duration: 0.9, ease: 'power4.inOut', delay: 0.15,
+        onComplete: () => { preloader.style.display = 'none'; playHero(); }
+      });
+    }
+  });
+
+  /* ---------------------------------------------------------
+     CUSTOM CURSOR
+  --------------------------------------------------------- */
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mx = window.innerWidth/2, my = window.innerHeight/2, rx = mx, ry = my;
+  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`; });
+  gsap.ticker.add(() => {
+    rx += (mx - rx) * 0.16; ry += (my - ry) * 0.16;
+    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
+  });
+  document.querySelectorAll('[data-hover], a, button, .gallery-item, .testi-dot').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+  document.querySelectorAll('#testiWrap, footer, [data-hover-dark]').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('dark'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('dark'));
+  });
+
+  /* ---------------------------------------------------------
+     NAV — shrink on scroll
+  --------------------------------------------------------- */
+  const header = document.getElementById('siteHeader');
+  ScrollTrigger.create({
+    start: 'top -60', end: 99999,
+    onUpdate: self => header.classList.toggle('scrolled', self.scroll() > 60)
+  });
+
+  /* ---------------------------------------------------------
+     HERO — kinetic typography reveal on load
+  --------------------------------------------------------- */
+  function playHero(){
+    gsap.set('.hero-title .line span', { yPercent: 110, rotate: 4 });
+    gsap.to('.hero-title .line span', {
+      yPercent: 0, rotate: 0, duration: 1.3, stagger: 0.12, ease: 'power4.out', delay: 0.1
+    });
+    gsap.fromTo('.hero-eyebrow', { opacity:0, x:-16 }, { opacity:1, x:0, duration:1, ease:'power3.out', delay:0.3 });
+    gsap.fromTo('.hero-foot', { opacity:0, y:20 }, { opacity:1, y:0, duration:1, ease:'power3.out', delay:0.7 });
+    gsap.fromTo('.hero-bg-img', { clipPath:'inset(100% 0 0 0)' }, { clipPath:'inset(0% 0 0 0)', duration:1.5, ease:'power4.inOut', delay:0.2 });
+    gsap.fromTo('.hero-bg-img img', { scale:1.4 }, { scale:1.15, duration:1.8, ease:'power3.out', delay:0.2 });
+  }
+  // fallback in case preloader stalls
+  setTimeout(() => { if (preloader.style.display !== 'none') { preloader.style.display='none'; playHero(); } }, 4000);
+
+  /* ---------------------------------------------------------
+     HERO — kinetic shift while scrolling away
+  --------------------------------------------------------- */
+  gsap.to('.hero-title', {
+    yPercent: -18, opacity: 0.15, ease:'none',
+    scrollTrigger: { trigger: '.hero', start:'top top', end:'bottom top', scrub: 0.6 }
+  });
+  gsap.to('.hero-bg-img', {
+    yPercent: 18, ease:'none',
+    scrollTrigger: { trigger: '.hero', start:'top top', end:'bottom top', scrub: 0.6 }
+  });
+
+  /* ---------------------------------------------------------
+     GENERIC REVEAL-ON-SCROLL
+  --------------------------------------------------------- */
+  gsap.utils.toArray('.reveal').forEach((el, i) => {
+    gsap.to(el, {
+      opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 88%' },
+      delay: (i % 4) * 0.06
+    });
+  });
+
+  gsap.utils.toArray('.reveal-mask').forEach(el => {
+    const inner = el.querySelector('img') || el;
+    gsap.fromTo(el, { clipPath:'inset(0 0 100% 0)' }, {
+      clipPath:'inset(0 0 0% 0)', duration:1.2, ease:'power4.inOut',
+      scrollTrigger:{ trigger: el, start:'top 85%' }
+    });
+    gsap.fromTo(inner, { scale:1.22, y:'2%' }, {
+      scale:1, y:'0%', duration:1.4, ease:'power3.out',
+      scrollTrigger:{ trigger: el, start:'top 85%' }
+    });
+  });
+
+  /* ---------------------------------------------------------
+     STORY IMAGE PARALLAX
+  --------------------------------------------------------- */
+  gsap.to('.story-img img', {
+    yPercent: -12, ease:'none',
+    scrollTrigger: { trigger:'.story-img', start:'top bottom', end:'bottom top', scrub:0.6 }
+  });
+
+  /* ---------------------------------------------------------
+     SIGNATURE: ROAST SCRUBBER — scroll-driven bean journey
+  --------------------------------------------------------- */
+  const stages = [
+    { name:'Green',       temp:21,  pct:0 },
+    { name:'Yellowing',   temp:120, pct:22 },
+    { name:'First Crack', temp:196, pct:46 },
+    { name:'City Roast',  temp:205, pct:70 },
+    { name:'Full City',   temp:216, pct:88 },
+    { name:'Dark',        temp:224, pct:100 }
+  ];
+  const bean = document.getElementById('roastBean');
+  const tempEl = document.getElementById('roastTemp');
+  const timeEl = document.getElementById('roastTime');
+  const stageEl = document.getElementById('roastStage');
+  const stageLabels = document.querySelectorAll('.roast-stages span');
+
+  ScrollTrigger.create({
+    trigger: '.roast-scrubber',
+    start: 'top 70%',
+    end: 'bottom 40%',
+    scrub: 0.5,
+    onUpdate: self => {
+      const p = self.progress * 100;
+      bean.style.left = p + '%';
+      const totalSeconds = Math.round((self.progress) * 702); // ~11:42 roast
+      const mm = Math.floor(totalSeconds/60);
+      const ss = String(totalSeconds%60).padStart(2,'0');
+      timeEl.textContent = mm + ':' + ss;
+
+      let current = stages[0];
+      for (const s of stages){ if (p >= s.pct) current = s; }
+      const idx = stages.indexOf(current);
+      const next = stages[idx+1] || current;
+      const span = (next.pct - current.pct) || 1;
+      const localP = Math.min(1, Math.max(0, (p - current.pct) / span));
+      const temp = Math.round(current.temp + (next.temp - current.temp) * localP);
+      tempEl.textContent = temp + '°C';
+      stageEl.textContent = current.name;
+      stageLabels.forEach(el => el.classList.toggle('active', el.dataset.stage === current.name));
+    }
+  });
+
+  /* ---------------------------------------------------------
+     FEATURE CARDS stagger + micro tilt on hover
+  --------------------------------------------------------- */
+  gsap.utils.toArray('.feature-card').forEach((card, i) => {
+    gsap.fromTo(card, { opacity:0, y:60 }, {
+      opacity:1, y:0, duration:0.9, ease:'power3.out', delay: i*0.08,
+      scrollTrigger:{ trigger:'.feature-grid', start:'top 82%' }
+    });
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left)/r.width - 0.5;
+      const py = (e.clientY - r.top)/r.height - 0.5;
+      gsap.to(card, { rotateY: px*4, rotateX: -py*4, duration:0.5, ease:'power2.out', transformPerspective:800 });
+    });
+    card.addEventListener('mouseleave', () => gsap.to(card, { rotateX:0, rotateY:0, duration:0.6, ease:'power3.out' }));
+  });
+
+  /* ---------------------------------------------------------
+     GALLERY — progress bar linked to horizontal scroll
+  --------------------------------------------------------- */
+  const galleryTrack = document.getElementById('galleryTrack');
+  const galleryProgress = document.getElementById('galleryProgress');
+  galleryTrack.addEventListener('scroll', () => {
+    const max = galleryTrack.scrollWidth - galleryTrack.clientWidth;
+    const p = max > 0 ? (galleryTrack.scrollLeft / max) * 100 : 0;
+    galleryProgress.style.width = Math.max(6,p) + '%';
+  });
+  gsap.utils.toArray('.gallery-item').forEach((item, i) => {
+    gsap.fromTo(item, { opacity:0, y:40 }, {
+      opacity:1, y:0, duration:0.9, ease:'power3.out', delay:i*0.05,
+      scrollTrigger:{ trigger: item, start:'top 90%', horizontal:false }
+    });
+  });
+
+  /* ---------------------------------------------------------
+     TESTIMONIALS — carousel
+  --------------------------------------------------------- */
+  const slides = document.querySelectorAll('.testi-slide');
+  const dots = document.querySelectorAll('.testi-dot');
+  let ti = 0, tTimer;
+  function showTesti(i){
+    slides.forEach((s,idx) => s.classList.toggle('active', idx===i));
+    dots.forEach((d,idx) => d.classList.toggle('active', idx===i));
+    ti = i;
+  }
+  function nextTesti(){ showTesti((ti+1) % slides.length); }
+  function autoTesti(){ clearInterval(tTimer); tTimer = setInterval(nextTesti, 6000); }
+  dots.forEach(d => d.addEventListener('click', () => { showTesti(parseInt(d.dataset.i)); autoTesti(); }));
+  document.getElementById('testiNext').addEventListener('click', () => { nextTesti(); autoTesti(); });
+  document.getElementById('testiPrev').addEventListener('click', () => { showTesti((ti-1+slides.length)%slides.length); autoTesti(); });
+  autoTesti();
+
+  /* ---------------------------------------------------------
+     FOOTER — mega text parallax reveal
+  --------------------------------------------------------- */
+  gsap.fromTo('.footer-mega', { opacity:0, y:40 }, {
+    opacity:1, y:0, duration:1.2, ease:'power3.out',
+    scrollTrigger:{ trigger:'.footer-mega', start:'top 95%' }
+  });
+
+  /* ---------------------------------------------------------
+     SMOOTH ANCHOR NAV (accounts for fixed header)
+  --------------------------------------------------------- */
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href');
+      if (id.length > 1){
+        const target = document.querySelector(id);
+        if (target){
+          e.preventDefault();
+          const y = target.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }
+    });
+  });
+
+  ScrollTrigger.refresh();
+});
+</script>
+</body>
+</html>
